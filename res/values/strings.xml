@@ -4,5 +4,10 @@
     <string name="app_name">GPSocial</string>
     <string name="action_settings">Settings</string>
     <string name="text">Kidong Kim\nFacebook: Blah Blah\nTwitter: Blah Blah\nTwitter2: Blah Blah</string>
+    
+    <string name="profile_pic">Default Profile Pic</string>
+    <string name="default_name">John Smith</string>
+    <string name="default_status">N: Some Social Network Status</string>
+    
 
 </resources>

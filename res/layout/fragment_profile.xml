@@ -5,22 +5,55 @@
     android:background="#17df0d"
     android:orientation="vertical" >
 
+    <ImageView
+        android:id="@+id/avatar_pic"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="25dp"
+        android:contentDescription="@string/profile_pic"
+        android:src="@drawable/default_avatar" />
+
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="25dp"
+        android:layout_toRightOf="@id/avatar_pic"
+        android:text="@string/default_name"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/status1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:gravity="center"
-        android:text="Design Movies Screen"
-        android:textSize="20dp" />
+        android:text="@string/default_status"
+        android:textSize="20sp" />
 
-    <QuickContactBadge
-        android:id="@+id/quickContactBadge1"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/status2"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/textView1"
-        android:layout_alignParentLeft="true"
-        android:layout_marginBottom="63dp"
-        android:layout_marginLeft="30dp" />
+        android:layout_centerInParent="true"
+        android:layout_below="@id/status1"
+        android:gravity="center"
+        android:layout_marginTop="15dp"
+        android:text="@string/default_status"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/status3"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_below="@id/status2"
+        android:gravity="center"
+        android:layout_marginTop="15dp"
+        android:text="@string/default_status"
+        android:textSize="20sp" />
 
 </RelativeLayout>
