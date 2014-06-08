@@ -1,22 +1,13 @@
 package com.gpsocial;
 
-import com.example.gpsocial.R;
-import com.gpsocial.adapter.TabsPagerAdapter;
-
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
-import android.text.Layout;
-import android.text.SpannableString;
-import android.text.style.LeadingMarginSpan.LeadingMarginSpan2;
-import android.widget.ImageView;
-import android.widget.TextView;
+
+import com.gpsocial.adapter.TabsPagerAdapter;
 
 public class MainActivity extends FragmentActivity implements
 		ActionBar.TabListener {
