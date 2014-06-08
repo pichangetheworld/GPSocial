@@ -1,6 +1,8 @@
-package com.example.gpsocial;
+package com.gpsocial;
 
-import gpsocial.adapter.TabsPagerAdapter;
+import com.example.gpsocial.R;
+import com.gpsocial.adapter.TabsPagerAdapter;
+
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;

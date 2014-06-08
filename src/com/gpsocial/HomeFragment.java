@@ -1,4 +1,6 @@
-package com.example.gpsocial;
+package com.gpsocial;
+
+import com.example.gpsocial.R;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
