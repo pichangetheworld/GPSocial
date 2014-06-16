@@ -1,8 +1,8 @@
 package com.gpsocial.adapter;
 
-import com.gpsocial.HomeFragment;
-import com.gpsocial.MapFragment;
-import com.gpsocial.ProfileFragment;
+import com.gpsocial.fragments.HomeFragment;
+import com.gpsocial.fragments.MapFragment;
+import com.gpsocial.fragments.ProfileFragment;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

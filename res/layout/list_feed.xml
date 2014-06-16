@@ -11,14 +11,24 @@
         android:text="@string/default_name"
         android:textSize="12sp" />
 
+    <ImageView
+        android:id="@+id/profile_picture"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="30dp"
+        android:contentDescription="@string/profile_pic"
+        android:gravity="left" />
+
     <TextView
         android:id="@+id/feed_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_alignBottom="@id/profile_picture"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:layout_marginTop="30dp"
+        android:layout_toRightOf="@id/profile_picture"
         android:gravity="left"
         android:text="@string/default_status"
         android:textSize="20sp" />
