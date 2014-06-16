@@ -1,7 +1,12 @@
 package com.gpsocial.adapter;
 
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Locale;
+
 import android.app.Activity;
 import android.content.Context;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,23 +18,24 @@ import com.gpsocial.R;
 import com.gpsocial.data.FeedData;
 
 public class FeedListAdapter extends ArrayAdapter<FeedData> {
-	private static Context context;
-    private static int layoutResourceId;   
-    private static FeedData data[] = null;
+	private Context context;
+    private int layoutResourceId;   
+    private List<FeedData> data = null;
 
 	public FeedListAdapter(Context context,
-			int layoutResourceId, FeedData[] objects) {
-		super(context, layoutResourceId, objects);
+			int layoutResourceId, List<FeedData> data) {
+		super(context, layoutResourceId, data);
 		this.context = context;
 		this.layoutResourceId = layoutResourceId;
-		this.data = objects;
+		this.data = data;
 	}
    
     static class FeedObjectHolder
     {
         ImageView profilePicture;
-        TextView username;
+        TextView author;
         TextView message;
+        TextView createdAt;
     }
 
 	@Override
@@ -44,8 +50,9 @@ public class FeedListAdapter extends ArrayAdapter<FeedData> {
            
             holder = new FeedObjectHolder();
             holder.profilePicture = (ImageView)row.findViewById(R.id.profile_picture);
-            holder.username = (TextView)row.findViewById(R.id.author);
-            holder.message = (TextView)row.findViewById(R.id.feed_content);
+            holder.author = (TextView)row.findViewById(R.id.author);
+            holder.message = (TextView)row.findViewById(R.id.message);
+            holder.createdAt = (TextView)row.findViewById(R.id.createdAt);
            
             row.setTag(holder);
         }
@@ -54,9 +61,16 @@ public class FeedListAdapter extends ArrayAdapter<FeedData> {
             holder = (FeedObjectHolder)row.getTag();
         }
        
-        FeedData post = data[position];
+        FeedData post = data.get(position);
         holder.profilePicture.setImageResource(R.drawable.default_avatar);
-        holder.username.setText(post.author);
+        holder.author.setText(post.author);
+        holder.message.setText(post.message);
+        if (System.currentTimeMillis() - post.created_at < 1000 * 60 * 60 * 24) // one day
+        	holder.createdAt.setText(DateUtils.getRelativeTimeSpanString(post.created_at));
+        else
+        	holder.createdAt.setText(
+        			new SimpleDateFormat("EEE MMM dd HH:mm:ss YYYY", Locale.CANADA)
+        			.format(post.created_at));
        
         return row;
 	}
