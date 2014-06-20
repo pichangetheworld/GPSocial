@@ -23,8 +23,8 @@ public class FeedData {
 		author = data.user.screen_name;
 		message = data.text;
 		try {
-			created_at = new SimpleDateFormat("EEE MMM dd HH:mm:ss", Locale.CANADA)
-				.parse(data.created_at).getTime();
+			created_at = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy", Locale.CANADA)
+				.parse(data.created_at).getTime() + 4 * 60 * 60 * 1000; // Twitter uses PST-DST
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

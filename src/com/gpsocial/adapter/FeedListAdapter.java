@@ -69,9 +69,13 @@ public class FeedListAdapter extends ArrayAdapter<FeedData> {
         	holder.createdAt.setText(DateUtils.getRelativeTimeSpanString(post.created_at));
         else
         	holder.createdAt.setText(
-        			new SimpleDateFormat("EEE MMM dd HH:mm:ss", Locale.CANADA)
+        			new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.CANADA)
         			.format(post.created_at));
        
         return row;
+	}
+	
+	public void setListData(List<FeedData> data) {
+		this.data = data;
 	}
 }
