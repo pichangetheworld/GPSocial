@@ -11,5 +11,6 @@
     <string name="default_timestamp">15 minutes ago</string>
     <string name="default_map">Default Map</string>
     
+    <string name="login_with_twitter">Log in with Twitter</string>
 
 </resources>
