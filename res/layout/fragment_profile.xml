@@ -22,7 +22,9 @@
             android:id="@+id/username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="25dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginBottom="15dp"
             android:layout_toRightOf="@id/avatar_pic"
             android:text="@string/default_name"
             android:textSize="24sp"
@@ -32,9 +34,10 @@
             android:id="@+id/handle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="25dp"
+            android:layout_below="@id/username"
             android:layout_toRightOf="@id/avatar_pic"
-            android:text="@string/default_name"
+            android:layout_marginLeft="25dp"
+            android:text="@string/default_handle"
             android:textSize="24sp"
             android:textStyle="bold" />
     </RelativeLayout>
