@@ -4,11 +4,21 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
+    <com.facebook.widget.LoginButton
+        android:id="@+id/facebookSigninButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp" />
+
     <Button
         android:id="@+id/twitterButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/facebookSigninButton"
         android:layout_centerInParent="true"
+        android:layout_margin="20dp"
         android:onClick="TwitterLogin"
         android:text="@string/login_with_twitter" />
 
