@@ -58,6 +58,7 @@ public class MainActivity extends FragmentActivity implements
 			}
 		});
 		
+		viewPager.setCurrentItem(1);
 	}
 
 	@Override

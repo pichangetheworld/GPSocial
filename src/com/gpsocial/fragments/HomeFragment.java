@@ -4,7 +4,11 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.Header;
+
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +35,28 @@ public class HomeFragment extends Fragment {
 	
 	private String resultFromServer = _DUMMYDATA;
 	private List<FeedData> standardFeed;
+	
+	Thread timer = new Thread() {
+	    public void run () {
+	        for (;;) {
+	            // do stuff in a separate thread
+	    		getResultFromServer();
+	            uiCallback.sendEmptyMessage(0);
+	            try {
+				    // sleep for 3 seconds
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+		    }
+		}
+	};
+	
+	private static Handler uiCallback = new Handler () {
+	    public void handleMessage (Message msg) {
+	        // do stuff with UI
+	    }
+	};
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,7 +76,7 @@ public class HomeFragment extends Fragment {
 		listview = (ListView) rootView.findViewById(R.id.listview);
 		listview.setAdapter(adapter);
 		
-		getResultFromServer();
+		timer.start();
 	    
 		return rootView;
 	}
@@ -61,6 +87,7 @@ public class HomeFragment extends Fragment {
 	}
 	
 	public void getResultFromServer() {
+		System.out.println("pchan: should be trying to hit server");
 		GPSocialClient.get("twitterTest", null, new TextHttpResponseHandler() {
 			@Override
 			public void onSuccess(String response) {
@@ -70,16 +97,22 @@ public class HomeFragment extends Fragment {
         			standardFeed.add(new FeedData(data));
         		}
         		
-//        		System.out.println("RESULT FROM SERVER " + response);
-        		updateFeed();
+        		System.out.println("pchan: RESULT FROM SERVER " + response);
+        		
+        		getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						updateFeed();
+					}
+				});
 			}
-			
-            @Override
-			public void onFailure(String responseBody, Throwable error) {
-				super.onFailure(responseBody, error);
-//				System.err.println("GPSocial client get: Error: " + responseBody +
-//						" error: " + error.getMessage());
-			}
+
+
+		    @Override
+		    public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+		        // called when response HTTP status is "4XX" (eg. 401, 403, 404)
+		    	System.err.println("pchan: Error: " + statusCode + " message:" + e.getLocalizedMessage());
+		    }
         });
 	}
 }

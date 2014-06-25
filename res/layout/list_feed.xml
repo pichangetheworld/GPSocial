@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
+    android:layout_height="wrap_content"
     android:padding="10dp" >
 
     <TextView
@@ -31,13 +31,13 @@
         android:layout_toRightOf="@id/profile_picture"
         android:gravity="left"
         android:text="@string/default_status"
-        android:textSize="20sp" />
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@id/message"
         android:layout_alignParentRight="true"
         android:text="@string/default_location"
         android:textSize="12sp" />
@@ -46,7 +46,7 @@
         android:id="@+id/createdAt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@id/message"
         android:layout_marginRight="10dp"
         android:layout_toLeftOf="@id/location"
         android:text="@string/default_timestamp"

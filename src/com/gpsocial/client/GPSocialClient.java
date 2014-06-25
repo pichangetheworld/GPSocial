@@ -8,7 +8,6 @@ public class GPSocialClient {
   private static AsyncHttpClient client = new AsyncHttpClient();
 
   public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-//	  System.out.println("GPSocialClient: Getting request from " + getAbsoluteUrl(url));
       client.get(getAbsoluteUrl(url), params, responseHandler);
   }
 

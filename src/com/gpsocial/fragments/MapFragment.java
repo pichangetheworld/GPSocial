@@ -5,10 +5,9 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationManager;
 import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.InflateException;
@@ -21,11 +20,11 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.gpsocial.R;
 
 public class MapFragment extends Fragment implements LocationListener {
@@ -41,77 +40,86 @@ public class MapFragment extends Fragment implements LocationListener {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-			super.onCreateView(inflater, container, savedInstanceState);
-	        
-			if(mMainView != null){
-		        ViewGroup parent = (ViewGroup) mMainView.getParent();
-		        if(parent != null){
-		            parent.removeView(mMainView);
-		        }
-		    }
-			
-		    try{
-		    	mMainView = inflater.inflate(R.layout.fragment_map, container, false);
-		    }catch (InflateException e){
-		        //map is already there, just return view as it is
-		    }
+		super.onCreateView(inflater, container, savedInstanceState);
 
-		    markerArray = new ArrayList<Marker>();
-		    
-	        map = ((SupportMapFragment) getFragmentManager().findFragmentById(R.id.map))
-		            .getMap();
-	        map.setMyLocationEnabled(true);
-	        Marker user1 = map.addMarker(new MarkerOptions()
-								        .position(UW_RCH)
-								        .title("David")
-								        .snippet("David is at RCH")
-								        .icon(BitmapDescriptorFactory
-								        		.fromResource(R.drawable.ic_launcher)));
-	        markerArray.add(user1);
-	        Marker user2 = map.addMarker(new MarkerOptions()
-								        .position(UW_Mels_Diner)
-								        .title("Amy")
-								        .snippet("Amy is at Mel's Diner")
-								        .icon(BitmapDescriptorFactory
-								        		.fromResource(R.drawable.ic_launcher)));
-	        markerArray.add(user2);
-	        LocationManager locManager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
-	        //Criteria criteria = new Criteria();	      
-	        //String provider = locManager.getBestProvider(criteria, false); 
-	        
-	        switchStatus = (TextView) mMainView.findViewById(R.id.switchStatus);
-            Button btnGPSConfig = (Button) mMainView.findViewById(R.id.gpsButton);   
-            btnGPSConfig.setOnClickListener(new OnClickListener() {				
-				@Override
-				public void onClick(View arg0) {
-					Intent viewIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-		               startActivity(viewIntent);					
-				}
-			});
+		if (mMainView != null) {
+			ViewGroup parent = (ViewGroup) mMainView.getParent();
+			if (parent != null) {
+				parent.removeView(mMainView);
+			}
+		}
 
-            Location locGPS = locManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);	        
-	        if(locGPS != null){
-	        	onLocationChanged(locGPS);	
-	        	locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20000, 0, this);
-	        } else {
-	        	Location locNoGPS = locManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-	        	if (locNoGPS != null){
-	        		onLocationChanged(locNoGPS);	        		
-	        	}
-	        	locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 20000, 0, this);
-	        }	   
-	        
-	        
-	        /*
-	        boolean isGPSEnabled = locManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-	        boolean isNetworkEnabled = locManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-	        
-	        if (isGPSEnabled){
-	      	    locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20000, 0, this);
-	        } else {
-	        	locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 20000, 0, this);
-		    }*/
-	        return mMainView;
+		try {
+			mMainView = inflater.inflate(R.layout.fragment_map, container, false);
+		} catch (InflateException e) {
+			// map is already there, just return view as it is
+		}
+
+		markerArray = new ArrayList<Marker>();
+
+		final SupportMapFragment frag = (SupportMapFragment)
+				getFragmentManager().findFragmentById(R.id.map);
+		map = frag.getMap();
+		map.setMyLocationEnabled(true);
+		Marker user1 = map.addMarker(new MarkerOptions()
+				.position(UW_RCH)
+				.title("David")
+				.snippet("David is at RCH")
+				.icon(BitmapDescriptorFactory
+						.fromResource(R.drawable.ic_launcher)));
+		markerArray.add(user1);
+		Marker user2 = map.addMarker(new MarkerOptions()
+				.position(UW_Mels_Diner)
+				.title("Amy")
+				.snippet("Amy is at Mel's Diner")
+				.icon(BitmapDescriptorFactory
+						.fromResource(R.drawable.ic_launcher)));
+		markerArray.add(user2);
+		LocationManager locManager = (LocationManager) getActivity()
+				.getSystemService(Context.LOCATION_SERVICE);
+		// Criteria criteria = new Criteria();
+		// String provider = locManager.getBestProvider(criteria, false);
+
+		switchStatus = (TextView) mMainView.findViewById(R.id.switchStatus);
+		Button btnGPSConfig = (Button) mMainView.findViewById(R.id.gpsButton);
+		btnGPSConfig.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				Intent viewIntent = new Intent(
+						android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+				startActivity(viewIntent);
+			}
+		});
+
+		Location locGPS = locManager
+				.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		if (locGPS != null) {
+			onLocationChanged(locGPS);
+			locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+					20000, 0, this);
+		} else {
+			Location locNoGPS = locManager
+					.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+			if (locNoGPS != null) {
+				onLocationChanged(locNoGPS);
+			}
+			locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+					20000, 0, this);
+		}
+
+		/*
+		 * boolean isGPSEnabled =
+		 * locManager.isProviderEnabled(LocationManager.GPS_PROVIDER); boolean
+		 * isNetworkEnabled =
+		 * locManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+		 * 
+		 * if (isGPSEnabled){
+		 * locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+		 * 20000, 0, this); } else {
+		 * locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+		 * 20000, 0, this); }
+		 */
+		return mMainView;
 	}
 
 	@Override
