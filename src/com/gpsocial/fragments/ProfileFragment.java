@@ -1,13 +1,19 @@
 package com.gpsocial.fragments;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -30,6 +36,7 @@ public class ProfileFragment extends Fragment {
 	
 	private TextView username;
 	private TextView handle;
+	private ImageView avatar;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -49,6 +56,7 @@ public class ProfileFragment extends Fragment {
 		
 		username = (TextView) rootView.findViewById(R.id.username);
 		handle = (TextView) rootView.findViewById(R.id.handle);
+		avatar = (ImageView) rootView.findViewById(R.id.avatar_pic);
 		
 		listview = (ListView) rootView.findViewById(R.id.feed_list);
 		listview.setAdapter(adapter);
@@ -76,6 +84,8 @@ public class ProfileFragment extends Fragment {
         		username.setText(profileFeed.username);
         		handle.setText(profileFeed.twitter_handle);
         		
+        		getProfileImg(profileFeed.profile_img_url_tw);
+        	    
         		updateFeed();
 			}
 			
@@ -84,5 +94,33 @@ public class ProfileFragment extends Fragment {
 				super.onFailure(responseBody, error);
 			}
         });
+	}
+	
+	private void getProfileImg(final String img_url) {
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					URL url = new URL(img_url);
+					final Bitmap bmp = BitmapFactory.decodeStream(url
+							.openConnection().getInputStream());
+					
+					getActivity().runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							avatar.setImageBitmap(bmp);
+						}
+					});
+					
+				} catch (MalformedURLException e) {
+					System.err.println("pchan: profile picture url not working");
+					e.printStackTrace();
+				} catch (IOException e) {
+					System.err.println("pchan: profile picture bitmap not working");
+					e.printStackTrace();
+				}
+			}
+		}).start();
 	}
 }

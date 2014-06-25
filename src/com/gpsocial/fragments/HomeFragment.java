@@ -87,7 +87,6 @@ public class HomeFragment extends Fragment {
 	}
 	
 	public void getResultFromServer() {
-		System.out.println("pchan: should be trying to hit server");
 		GPSocialClient.get("twitterTest", null, new TextHttpResponseHandler() {
 			@Override
 			public void onSuccess(String response) {
@@ -96,8 +95,6 @@ public class HomeFragment extends Fragment {
         		for (TwitterData data : feedFromServer) {
         			standardFeed.add(new FeedData(data));
         		}
-        		
-        		System.out.println("pchan: RESULT FROM SERVER " + response);
         		
         		getActivity().runOnUiThread(new Runnable() {
 					@Override
