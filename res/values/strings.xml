@@ -15,5 +15,7 @@
    
     <string name="login_with_twitter">Log in with Twitter</string>   
 
+    <!-- For Facebook Login -->
+    <string name="app_id">286694874836209</string>
 
 </resources>
