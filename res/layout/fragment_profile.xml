@@ -42,7 +42,7 @@
             android:textStyle="bold" />
     </RelativeLayout>
 
-    <include
+    <!-- <include
         android:id="@+id/status1"
         layout="@layout/list_feed" />
 
@@ -52,6 +52,12 @@
 
     <include
         android:id="@+id/status3"
-        layout="@layout/list_feed" />
+        layout="@layout/list_feed" /> -->
+        
+    <ListView
+        android:id="@+id/feed_list"
+        android:layout_width="match_parent"
+        android:layout_height="600dp" >
+    </ListView>
 
 </LinearLayout>
