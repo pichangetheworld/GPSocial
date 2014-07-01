@@ -17,11 +17,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import com.facebook.Request;
+import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
-import com.google.gson.Gson;
+import com.facebook.model.GraphUser;
 import com.gpsocial.client.GPSocialClient;
+import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
 
 public class SigninActivity extends Activity {
@@ -49,9 +52,24 @@ public class SigninActivity extends Activity {
 
 	private Session.StatusCallback callback = new Session.StatusCallback() {
 		@Override
-		public void call(Session session, SessionState state,
+		public void call(final Session session, SessionState state,
 				Exception exception) {
-			// Session state was changed
+			if (state.isOpened()) {
+				// make request to the /me API
+				Request.newMeRequest(session, new Request.GraphUserCallback() {
+					// callback after Graph API response with user object
+					@Override
+					public void onCompleted(GraphUser user, Response response) {
+						RequestParams request = new RequestParams();
+						if (user != null) {
+							request.put("userId", user.getId());
+						}
+
+						request.put("token", session.getAccessToken());
+						loginToGPSocialFacebook(request);
+					}
+				}).executeAsync();
+			}
 		}
 	};
 
@@ -62,13 +80,14 @@ public class SigninActivity extends Activity {
 		uiHelper.onCreate(savedInstanceState);
 
 		// Shared Preferences
-        mSharedPreferences = getSharedPreferences("userDetails", MODE_PRIVATE);
-		
+		mSharedPreferences = getSharedPreferences("userDetails", MODE_PRIVATE);
+
 		setContentView(R.layout.activity_signin);
 
 		// If this was redirected from the Twitter page
 		// Parse the uri for the OAuth Verifier
-		if (mSharedPreferences.getBoolean(PREF_KEY_LOGIN, false)) {
+		// XXX for testing, force sign in every time
+		if (false && mSharedPreferences.getBoolean(PREF_KEY_LOGIN, false)) {
 			startActivity(new Intent(SigninActivity.this, MainActivity.class));
 		} else {
 			Uri uri = getIntent().getData();
@@ -91,32 +110,35 @@ public class SigninActivity extends Activity {
 
 							// After getting access token, access token secret
 							// store them in application preferences
-							e.putString(PREF_KEY_OAUTH_TOKEN, accessToken.getToken());
+							e.putString(PREF_KEY_OAUTH_TOKEN,
+									accessToken.getToken());
 							e.putString(PREF_KEY_OAUTH_SECRET,
 									accessToken.getTokenSecret());
 							// Store login status - true
 							e.putBoolean(PREF_KEY_LOGIN, true);
 							e.commit(); // save changes
 
-							Log.e("Twitter OAuth Token", "> " + accessToken.getToken());
+							Log.e("Twitter OAuth Token",
+									"> " + accessToken.getToken());
 						} catch (TwitterException e) {
 							// Check log for login errors
 							Log.e("Twitter Login Error", "> " + e.getMessage());
 						}
 						return accessToken;
 					}
-					
+
 					@Override
-			        protected void onPostExecute(AccessToken result) {
-						String token = new Gson().toJson(result);
-						Log.e("Twitter Login", "Token:" + token);
-						
-						loginToGPSocial(token);
-			        }
+					protected void onPostExecute(AccessToken token) {
+						RequestParams request = new RequestParams();
+						request.put("userId", token.getUserId());
+						request.put("screenName", token.getScreenName());
+						request.put("token", token.getToken());
+						request.put("tokenSecret", token.getTokenSecret());
+						loginToGPSocialTwitter(request);
+					}
 				}.execute(verifier);
 			}
 		}
-
 	}
 
 	// Sign in with Twitter
@@ -129,22 +151,33 @@ public class SigninActivity extends Activity {
 			}
 		}.execute();
 	}
-	
-	public void loginToGPSocial(String request) {
-		GPSocialClient.post("authenticate", null, new TextHttpResponseHandler() {
-			@Override
-			public void onSuccess(String response) {
-				// open the main app!!!!
-				startActivity(new Intent(SigninActivity.this, MainActivity.class));
-			}
-			
-            @Override
-			public void onFailure(String responseBody, Throwable error) {
-				super.onFailure(responseBody, error);
-				// XXX for now, since the endpoint is not there yet
-				startActivity(new Intent(SigninActivity.this, MainActivity.class));
-			}
-        });
+
+	public void loginToGPSocialFacebook(RequestParams request) {
+		loginToGPSocial("authenticate_facebook", request);
+	}
+
+	public void loginToGPSocialTwitter(RequestParams request) {
+		loginToGPSocial("authenticate_twitter", request);
+	}
+
+	public void loginToGPSocial(String endpoint, RequestParams request) {
+		GPSocialClient.post(endpoint, request,
+				new TextHttpResponseHandler() {
+					@Override
+					public void onSuccess(String response) {
+						// open the main app!!!!
+						startActivity(new Intent(SigninActivity.this,
+								MainActivity.class));
+					}
+
+					@Override
+					public void onFailure(String responseBody, Throwable error) {
+						super.onFailure(responseBody, error);
+						// XXX for now, since the endpoint is not there yet
+						startActivity(new Intent(SigninActivity.this,
+								MainActivity.class));
+					}
+				});
 	}
 
 	@Override
