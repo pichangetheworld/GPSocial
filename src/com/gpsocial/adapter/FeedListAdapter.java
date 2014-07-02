@@ -119,6 +119,7 @@ public class FeedListAdapter extends ArrayAdapter<FeedData> {
 			} else {
 				view.setImageResource(R.drawable.default_avatar);
 			}
+			notifyDataSetChanged();
         }
 
 	}

@@ -32,8 +32,8 @@ public class SigninActivity extends Activity {
 
 	// callback for twitter
 	private static final String TWITTER_CALLBACK_URL = "oauth://gpsocial";
-	private static final String TWITTER_CONSUMER_KEY = "NG6J4g9BuMRy9Wxovp9y2t56s";
-	private static final String TWITTER_CONSUMER_SECRET = "dynXse9yobluRM2y2TFV61conx6r7d5kiw3iOQZUS6hUDqv6WM";
+	private static final String TWITTER_CONSUMER_KEY = "RDfBstGQ5U8zMxP5dLcF6ugI4";
+	private static final String TWITTER_CONSUMER_SECRET = "qJRiOLJDP2QqoWpv0rt7aAoCKBGmdQLd4J5FUeM7OVlx7qYyfO";
 
 	// Twitter oauth urls
 	private static final String URL_TWITTER_OAUTH_VERIFIER = "oauth_verifier";
@@ -93,8 +93,7 @@ public class SigninActivity extends Activity {
 			Uri uri = getIntent().getData();
 			if (uri != null && uri.toString().startsWith(TWITTER_CALLBACK_URL)) {
 				// oAuth verifier
-				String verifier = uri
-						.getQueryParameter(URL_TWITTER_OAUTH_VERIFIER);
+				String verifier = uri.getQueryParameter(URL_TWITTER_OAUTH_VERIFIER);
 
 				new AsyncTask<String, Void, AccessToken>() {
 					@Override
@@ -110,16 +109,14 @@ public class SigninActivity extends Activity {
 
 							// After getting access token, access token secret
 							// store them in application preferences
-							e.putString(PREF_KEY_OAUTH_TOKEN,
-									accessToken.getToken());
-							e.putString(PREF_KEY_OAUTH_SECRET,
-									accessToken.getTokenSecret());
+							e.putString(PREF_KEY_OAUTH_TOKEN, accessToken.getToken());
+							e.putString(PREF_KEY_OAUTH_SECRET, accessToken.getTokenSecret());
+							
 							// Store login status - true
 							e.putBoolean(PREF_KEY_LOGIN, true);
 							e.commit(); // save changes
 
-							Log.e("Twitter OAuth Token",
-									"> " + accessToken.getToken());
+							Log.e("Twitter OAuth Token", "> " + accessToken.getToken());
 						} catch (TwitterException e) {
 							// Check log for login errors
 							Log.e("Twitter Login Error", "> " + e.getMessage());
@@ -134,6 +131,10 @@ public class SigninActivity extends Activity {
 						request.put("screenName", token.getScreenName());
 						request.put("token", token.getToken());
 						request.put("tokenSecret", token.getTokenSecret());
+//						System.out.println("pchan: userId:" + token.getUserId()
+//								+ " screenName:" + token.getScreenName()
+//								+ " token: " + token.getToken()
+//								+ " tokenSecret:" + token.getTokenSecret());
 						loginToGPSocialTwitter(request);
 					}
 				}.execute(verifier);
@@ -166,16 +167,14 @@ public class SigninActivity extends Activity {
 					@Override
 					public void onSuccess(String response) {
 						// open the main app!!!!
-						startActivity(new Intent(SigninActivity.this,
-								MainActivity.class));
+						startActivity(new Intent(SigninActivity.this, MainActivity.class));
 					}
 
 					@Override
 					public void onFailure(String responseBody, Throwable error) {
 						super.onFailure(responseBody, error);
 						// XXX for now, since the endpoint is not there yet
-						startActivity(new Intent(SigninActivity.this,
-								MainActivity.class));
+						startActivity(new Intent(SigninActivity.this, MainActivity.class));
 					}
 				});
 	}
