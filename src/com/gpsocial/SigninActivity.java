@@ -86,8 +86,7 @@ public class SigninActivity extends Activity {
 
 		// If this was redirected from the Twitter page
 		// Parse the uri for the OAuth Verifier
-		// XXX for testing, force sign in every time
-		if (false && mSharedPreferences.getBoolean(PREF_KEY_LOGIN, false)) {
+		if (mSharedPreferences.getBoolean(PREF_KEY_LOGIN, false)) {
 			startActivity(new Intent(SigninActivity.this, MainActivity.class));
 		} else {
 			Uri uri = getIntent().getData();

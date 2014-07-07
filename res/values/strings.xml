@@ -11,6 +11,7 @@
     <string name="default_location">2km away</string>
     <string name="default_timestamp">15 minutes ago</string>
     <string name="default_map">Default Map</string>
+    <string name="link_your_account">Link your account</string>
     
     <integer name="google_play_services_version">4452000</integer>
     <string name="gps_config">GPS Config</string>

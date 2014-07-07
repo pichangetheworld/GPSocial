@@ -6,7 +6,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content" >
 
         <ImageView
             android:id="@+id/avatar_pic"
@@ -22,9 +22,8 @@
             android:id="@+id/username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
             android:layout_marginLeft="25dp"
-            android:layout_marginBottom="15dp"
+            android:layout_marginTop="25dp"
             android:layout_toRightOf="@id/avatar_pic"
             android:text="@string/default_name"
             android:textSize="24sp"
@@ -35,25 +34,35 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/username"
-            android:layout_toRightOf="@id/avatar_pic"
             android:layout_marginLeft="25dp"
+            android:layout_toRightOf="@id/avatar_pic"
             android:text="@string/default_handle"
             android:textSize="24sp"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/link_account"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/handle"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginBottom="10dp"
+            android:layout_toRightOf="@id/avatar_pic"
+            android:text="@string/link_your_account"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/link_twitter"
+            android:layout_width="30dp"
+            android:layout_height="25dp"
+            android:layout_below="@id/link_account"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="85dp"
+            android:background="@drawable/link_twitter_selector" />
     </RelativeLayout>
 
-    <!-- <include
-        android:id="@+id/status1"
-        layout="@layout/list_feed" />
-
-    <include
-        android:id="@+id/status2"
-        layout="@layout/list_feed" />
-
-    <include
-        android:id="@+id/status3"
-        layout="@layout/list_feed" /> -->
-        
     <ListView
         android:id="@+id/feed_list"
         android:layout_width="match_parent"
