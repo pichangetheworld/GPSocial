@@ -81,6 +81,8 @@ public class FeedListAdapter extends ArrayAdapter<FeedData> {
         			new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.CANADA)
         			.format(post.created_at));
        
+        row.requestLayout();
+        
         return row;
 	}
 	

@@ -18,18 +18,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.gpsocial.MainActivity;
 import com.gpsocial.R;
 import com.gpsocial.adapter.FeedListAdapter;
 import com.gpsocial.client.GPSocialClient;
 import com.gpsocial.data.FeedData;
 import com.gpsocial.data.ProfileData;
+import com.gpsocial.data.TwitterData;
 import com.loopj.android.http.TextHttpResponseHandler;
 
 public class ProfileFragment extends Fragment {
-	private static final String _DUMMYDATA = "{\"username\":\"bob marley\",\"twitter_handle\":\"@joesmith\",\"profile_img_url_tw\":\"http://png-3.findicons.com/files/icons/1580/devine_icons_part_2/128/account_and_control.png\","
-			+ "\"feed\":[{\"feed_source\":1,\"author\":\"GPSocial\", \"message\":\"first Twitter post\", \"created_at\":1403531574529, \"profile_img_url\":\"http://lautechstudents.com/images/profile.png\"},"
-			+ "{\"feed_source\":1,\"author\":\"jack\",\"message\":\"Hi I'm Jack\",\"created_at\":1403531412241,\"profile_img_url\":\"http://lautechstudents.com/images/profile.png\"}]}";
-
 	private FeedListAdapter adapter;
 	private ListView listview;
 	private List<FeedData> standardFeed;
@@ -41,16 +39,10 @@ public class ProfileFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		// get JSON string from server
-		ProfileData profileFeed = new Gson().fromJson(_DUMMYDATA, ProfileData.class);
-
 		View rootView = inflater.inflate(R.layout.fragment_profile, container,
 				false);
 		
 		standardFeed = new ArrayList<FeedData>();
-		for (FeedData data : profileFeed.feed) {
-			standardFeed.add(data);
-		}
 		
 		adapter = new FeedListAdapter(getActivity(), R.layout.list_feed, standardFeed);
 		
@@ -72,16 +64,17 @@ public class ProfileFragment extends Fragment {
 	}
 	
 	public void getResultFromServer() {
-		GPSocialClient.get("profileTest", null, new TextHttpResponseHandler() {
+		GPSocialClient.get("profileTest2", ((MainActivity) getActivity()).getRequestParams(), new TextHttpResponseHandler() {
 			@Override
 			public void onSuccess(String response) {
 				ProfileData profileFeed = new Gson().fromJson(response, ProfileData.class);
         		standardFeed.clear();
-        		for (FeedData data : profileFeed.feed) {
-        			standardFeed.add(data);
+        		for (TwitterData data : profileFeed.feed) {
+        			standardFeed.add(new FeedData(data));
         		}
 
-        		username.setText(profileFeed.username);
+        		username.setText(profileFeed.name);
+        		System.out.println("pchan: twitter handle is " + profileFeed.twitter_handle);
         		handle.setText(profileFeed.twitter_handle);
         		
         		getProfileImg(profileFeed.profile_img_url_tw);
@@ -110,11 +103,12 @@ public class ProfileFragment extends Fragment {
 						@Override
 						public void run() {
 							avatar.setImageBitmap(bmp);
+							adapter.notifyDataSetChanged();
 						}
 					});
 					
 				} catch (MalformedURLException e) {
-					System.err.println("pchan: profile picture url not working");
+					System.err.println("pchan: profile picture url " + img_url + " not working");
 					e.printStackTrace();
 				} catch (IOException e) {
 					System.err.println("pchan: profile picture bitmap not working");

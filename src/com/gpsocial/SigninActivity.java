@@ -8,6 +8,8 @@ import twitter4j.auth.RequestToken;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -23,7 +25,10 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
+import com.google.gson.Gson;
 import com.gpsocial.client.GPSocialClient;
+import com.gpsocial.data.AuthData;
+import com.gpsocial.fragments.WebDialogFragment;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
 
@@ -49,7 +54,7 @@ public class SigninActivity extends Activity {
 	private static final String PREF_KEY_OAUTH_TOKEN = "oauth_token";
 	private static final String PREF_KEY_OAUTH_SECRET = "oauth_token_secret";
 	private static final String PREF_KEY_LOGIN = "gpsocialSignedIn";
-
+	
 	private Session.StatusCallback callback = new Session.StatusCallback() {
 		@Override
 		public void call(final Session session, SessionState state,
@@ -86,8 +91,13 @@ public class SigninActivity extends Activity {
 
 		// If this was redirected from the Twitter page
 		// Parse the uri for the OAuth Verifier
-		if (mSharedPreferences.getBoolean(PREF_KEY_LOGIN, false)) {
-			startActivity(new Intent(SigninActivity.this, MainActivity.class));
+		String mUserId = mSharedPreferences.getString(PREF_KEY_LOGIN, "");
+		if (!mUserId.isEmpty()) {
+			Intent i = new Intent(SigninActivity.this, MainActivity.class);
+			Bundle b = new Bundle();
+			b.putString("userId", mUserId);
+			i.putExtras(b);
+			startActivity(i);
 		} else {
 			Uri uri = getIntent().getData();
 			if (uri != null && uri.toString().startsWith(TWITTER_CALLBACK_URL)) {
@@ -111,8 +121,6 @@ public class SigninActivity extends Activity {
 							e.putString(PREF_KEY_OAUTH_TOKEN, accessToken.getToken());
 							e.putString(PREF_KEY_OAUTH_SECRET, accessToken.getTokenSecret());
 							
-							// Store login status - true
-							e.putBoolean(PREF_KEY_LOGIN, true);
 							e.commit(); // save changes
 
 							Log.e("Twitter OAuth Token", "> " + accessToken.getToken());
@@ -140,7 +148,9 @@ public class SigninActivity extends Activity {
 			}
 		}
 	}
-
+	
+	
+	
 	// Sign in with Twitter
 	public void TwitterLogin(View view) {
 		new AsyncTask<Void, Void, Void>() {
@@ -165,17 +175,49 @@ public class SigninActivity extends Activity {
 				new TextHttpResponseHandler() {
 					@Override
 					public void onSuccess(String response) {
-						// open the main app!!!!
-						startActivity(new Intent(SigninActivity.this, MainActivity.class));
+						AuthData auth = new Gson().fromJson(response, AuthData.class);
+						
+						if (auth.success) {
+							// Store login userId
+							mSharedPreferences.edit().putString(PREF_KEY_LOGIN, auth.userId).commit();
+							
+							System.out.println("pchan: SUCCESS! user id is: " + auth.userId);
+							
+							// open the main activity
+							Intent i = new Intent(SigninActivity.this, MainActivity.class);
+							Bundle b = new Bundle();
+							b.putString("userId", auth.userId);
+							i.putExtras(b);
+							startActivity(i);
+						} else {
+							System.err.println("pchan: Signin failed with auth success " + auth.success);
+							
+							// show error
+							onSigninFailure();
+						}
 					}
 
 					@Override
 					public void onFailure(String responseBody, Throwable error) {
 						super.onFailure(responseBody, error);
-						// XXX for now, since the endpoint is not there yet
-						startActivity(new Intent(SigninActivity.this, MainActivity.class));
+						
+						System.err.println("pchan: Signin error... " + error.getLocalizedMessage());
+						onSigninFailure();
 					}
 				});
+	}
+	
+	private void onSigninFailure() {
+		new AlertDialog.Builder(this)
+				.setTitle("Error")
+				.setMessage("An error happened on sign in. Please try again later.")
+				.setPositiveButton(android.R.string.ok,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int which) {
+							}
+						})
+				.show();
 	}
 
 	@Override
@@ -221,6 +263,9 @@ public class SigninActivity extends Activity {
 
 		try {
 			requestToken = twitter.getOAuthRequestToken(TWITTER_CALLBACK_URL);
+//			WebDialogFragment newFragment = new WebDialogFragment();
+//			newFragment.setUrl(requestToken.getAuthenticationURL());
+//		    newFragment.show(getFragmentManager(), "twitter_login");
 			SigninActivity.this.startActivity(new Intent(Intent.ACTION_VIEW,
 					Uri.parse(requestToken.getAuthenticationURL())));
 		} catch (TwitterException e) {

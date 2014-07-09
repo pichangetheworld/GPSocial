@@ -26,7 +26,7 @@ public class FeedData {
 		message = data.text;
 		try {
 			created_at = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy", Locale.CANADA)
-				.parse(data.created_at).getTime() + 4 * 60 * 60 * 1000; // Twitter uses PST-DST
+				.parse(data.created_at).getTime(); // Twitter uses PST-DST
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

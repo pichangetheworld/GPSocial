@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 
 import com.gpsocial.adapter.TabsPagerAdapter;
+import com.loopj.android.http.RequestParams;
 
 public class MainActivity extends FragmentActivity implements
 		ActionBar.TabListener {
@@ -18,10 +19,15 @@ public class MainActivity extends FragmentActivity implements
 	
 	private String[] tabs = {"Map", "Home", "Profile"};
 	
+	private String mUserId;
+	private RequestParams mRequestParams = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		mUserId = getIntent().getStringExtra("userId");
 		
 		viewPager = (ViewPager) findViewById(R.id.pager);
 		actionBar = getActionBar();
@@ -60,10 +66,17 @@ public class MainActivity extends FragmentActivity implements
 		
 		viewPager.setCurrentItem(1);
 	}
-
-	@Override
-	public void onTabReselected(Tab tab, FragmentTransaction ft) {
+	
+	public RequestParams getRequestParams() {
+		if (mRequestParams == null) {
+			mRequestParams = new RequestParams();
+			mRequestParams.add("id", mUserId);
+		}
+		return mRequestParams;
 	}
+	
+	@Override
+	public void onTabReselected(Tab tab, FragmentTransaction ft) {}
 	
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
@@ -73,7 +86,6 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	@Override
-	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-	}
+	public void onTabUnselected(Tab tab, FragmentTransaction ft) {}
 	
 }
