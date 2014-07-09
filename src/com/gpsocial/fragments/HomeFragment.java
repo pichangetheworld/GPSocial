@@ -73,11 +73,11 @@ public class HomeFragment extends Fragment {
 	}
 
 	public void getResultFromServer() {
-		GPSocialClient.get("twitterTest2", ((MainActivity) getActivity()).getRequestParams(), new TextHttpResponseHandler() {
+		GPSocialClient.get("news_feed", ((MainActivity) getActivity()).getRequestParams(), new TextHttpResponseHandler() {
 			@Override
 			public void onSuccess(String response) {
-				TwitterData[] feedFromServer = new Gson().fromJson(response,
-						_TYPE);
+				TwitterData[] feedFromServer = new Gson().fromJson(response, _TYPE);
+				
 				standardFeed.clear();
 				for (TwitterData data : feedFromServer) {
 					standardFeed.add(new FeedData(data));

@@ -6,8 +6,8 @@ import java.util.Locale;
 
 public class FeedData {
 	public enum Source {
-		FACEBOOK,
-		TWITTER
+		TWITTER, // 1
+		FACEBOOK // 2
 	};
 	
 	public Source feed_source;  // FB, Twitter, G+

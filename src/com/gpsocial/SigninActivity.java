@@ -110,8 +110,7 @@ public class SigninActivity extends Activity {
 						AccessToken accessToken = null;
 						try {
 							// Get the access token
-							accessToken = twitter.getOAuthAccessToken(
-									requestToken, params[0]);
+							accessToken = twitter.getOAuthAccessToken(requestToken, params[0]);
 
 							// Shared Preferences
 							Editor e = mSharedPreferences.edit();
@@ -134,11 +133,11 @@ public class SigninActivity extends Activity {
 					@Override
 					protected void onPostExecute(AccessToken token) {
 						RequestParams request = new RequestParams();
-						request.put("userId", token.getUserId());
+						request.put("userId", Long.toString(token.getUserId()));
 						request.put("screenName", token.getScreenName());
 						request.put("token", token.getToken());
 						request.put("tokenSecret", token.getTokenSecret());
-//						System.out.println("pchan: userId:" + token.getUserId()
+//						System.out.println("pchan: userId:" + Long.toString(token.getUserId())
 //								+ " screenName:" + token.getScreenName()
 //								+ " token: " + token.getToken()
 //								+ " tokenSecret:" + token.getTokenSecret());

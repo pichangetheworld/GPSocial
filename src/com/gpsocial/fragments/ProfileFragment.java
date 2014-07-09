@@ -50,8 +50,16 @@ public class ProfileFragment extends Fragment {
 		handle = (TextView) rootView.findViewById(R.id.handle);
 		avatar = (ImageView) rootView.findViewById(R.id.avatar_pic);
 		
+		// TODO
+		// get flags
+		// link Facebook
+		// link Twitter
+		
 		listview = (ListView) rootView.findViewById(R.id.feed_list);
 		listview.setAdapter(adapter);
+		
+		// TODO
+		// post Tweets
 		
 		getResultFromServer();
 		
@@ -64,7 +72,7 @@ public class ProfileFragment extends Fragment {
 	}
 	
 	public void getResultFromServer() {
-		GPSocialClient.get("profileTest2", ((MainActivity) getActivity()).getRequestParams(), new TextHttpResponseHandler() {
+		GPSocialClient.get("profile", ((MainActivity) getActivity()).getRequestParams(), new TextHttpResponseHandler() {
 			@Override
 			public void onSuccess(String response) {
 				ProfileData profileFeed = new Gson().fromJson(response, ProfileData.class);
@@ -73,8 +81,8 @@ public class ProfileFragment extends Fragment {
         			standardFeed.add(new FeedData(data));
         		}
 
+        		System.out.println("pchan name is " + profileFeed.name + " handle:" + profileFeed.twitter_handle);
         		username.setText(profileFeed.name);
-        		System.out.println("pchan: twitter handle is " + profileFeed.twitter_handle);
         		handle.setText(profileFeed.twitter_handle);
         		
         		getProfileImg(profileFeed.profile_img_url_tw);

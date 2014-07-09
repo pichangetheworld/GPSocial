@@ -28,6 +28,9 @@ public class FeedListAdapter extends ArrayAdapter<FeedData> {
 	private Context context;
     private int layoutResourceId;   
     private List<FeedData> data = null;
+    
+    //TODO
+    //MemoryCache memoryCache=new MemoryCache();
 
 	public FeedListAdapter(Context context,
 			int layoutResourceId, List<FeedData> data) {
@@ -80,8 +83,6 @@ public class FeedListAdapter extends ArrayAdapter<FeedData> {
         	holder.createdAt.setText(
         			new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.CANADA)
         			.format(post.created_at));
-       
-        row.requestLayout();
         
         return row;
 	}
