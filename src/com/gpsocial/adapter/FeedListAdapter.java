@@ -1,18 +1,11 @@
 package com.gpsocial.adapter;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,15 +22,16 @@ public class FeedListAdapter extends ArrayAdapter<FeedData> {
     private int layoutResourceId;   
     private List<FeedData> data = null;
     
-    //TODO
-    //MemoryCache memoryCache=new MemoryCache();
-
+    private ImageLoader mImageLoader;
+    
 	public FeedListAdapter(Context context,
 			int layoutResourceId, List<FeedData> data) {
 		super(context, layoutResourceId, data);
 		this.context = context;
 		this.layoutResourceId = layoutResourceId;
 		this.data = data;
+		
+		mImageLoader = new ImageLoader(getContext());
 	}
    
     static class FeedObjectHolder
@@ -66,8 +60,6 @@ public class FeedListAdapter extends ArrayAdapter<FeedData> {
             holder.message = (TextView)row.findViewById(R.id.message);
             holder.createdAt = (TextView)row.findViewById(R.id.createdAt);
 
-            getProfileImg(holder.profilePicture, post.profile_img_url);
-            
             row.setTag(holder);
         }
         else
@@ -84,52 +76,12 @@ public class FeedListAdapter extends ArrayAdapter<FeedData> {
         			new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.CANADA)
         			.format(post.created_at));
         
+        mImageLoader.displayImage(post.profile_img_url, holder.profilePicture);
+        
         return row;
 	}
 	
 	public void setListData(List<FeedData> data) {
 		this.data = data;
-	}
-	
-	private class ProfilePictureParams {
-		String url;
-		ImageView dest;
-	}
-
-	private class UpdateProfilePictureAsyncTask extends AsyncTask<ProfilePictureParams, Void, Bitmap> {
-		private ImageView view;
-		
-		@Override
-		protected Bitmap doInBackground(ProfilePictureParams... params) {
-			Bitmap bmp = null;
-			view = params[0].dest;
-			try {
-				URL url = new URL(params[0].url);
-				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-				bmp = BitmapFactory.decodeStream(connection.getInputStream());
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return bmp;
-		}
-		
-		@Override
-        protected void onPostExecute(Bitmap result) {
-			if (result != null) {
-		        view.setImageBitmap(result);
-			} else {
-				view.setImageResource(R.drawable.default_avatar);
-			}
-			notifyDataSetChanged();
-        }
-
-	}
-	private void getProfileImg(final ImageView avatar, final String img_url) {
-		ProfilePictureParams params = new ProfilePictureParams();
-		params.url = img_url;
-		params.dest = avatar;
-		new UpdateProfilePictureAsyncTask().execute(params);
 	}
 }
