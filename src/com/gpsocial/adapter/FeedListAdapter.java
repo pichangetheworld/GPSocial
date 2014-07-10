@@ -16,13 +16,13 @@ import android.widget.TextView;
 
 import com.gpsocial.R;
 import com.gpsocial.data.FeedData;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class FeedListAdapter extends ArrayAdapter<FeedData> {
 	private Context context;
     private int layoutResourceId;   
     private List<FeedData> data = null;
     
-    private ImageLoader mImageLoader;
     
 	public FeedListAdapter(Context context,
 			int layoutResourceId, List<FeedData> data) {
@@ -30,8 +30,6 @@ public class FeedListAdapter extends ArrayAdapter<FeedData> {
 		this.context = context;
 		this.layoutResourceId = layoutResourceId;
 		this.data = data;
-		
-		mImageLoader = new ImageLoader(getContext());
 	}
    
     static class FeedObjectHolder
@@ -76,7 +74,7 @@ public class FeedListAdapter extends ArrayAdapter<FeedData> {
         			new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.CANADA)
         			.format(post.created_at));
         
-        mImageLoader.displayImage(post.profile_img_url, holder.profilePicture);
+        ImageLoader.getInstance().displayImage(post.profile_img_url, holder.profilePicture);
         
         return row;
 	}

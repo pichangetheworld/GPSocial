@@ -56,8 +56,7 @@ public class HomeFragment extends Fragment {
 
 		View rootView = inflater.inflate(R.layout.fragment_home, container,
 				false);
-		adapter = new FeedListAdapter(getActivity(), R.layout.list_feed,
-				standardFeed);
+		adapter = new FeedListAdapter(getActivity(), R.layout.list_feed, standardFeed);
 
 		listview = (ListView) rootView.findViewById(R.id.listview);
 		listview.setAdapter(adapter);

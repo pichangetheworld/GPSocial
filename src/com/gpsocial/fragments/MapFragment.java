@@ -25,6 +25,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.gpsocial.MainActivity;
 import com.gpsocial.R;
 
 public class MapFragment extends Fragment implements LocationListener {
@@ -163,8 +164,7 @@ public class MapFragment extends Fragment implements LocationListener {
 
         switchStatus.setText("Successfully detected your location");
         
-        
-        
+        ((MainActivity) getActivity()).setLocation(longitude, latitude);
 	}
 
 	@Override

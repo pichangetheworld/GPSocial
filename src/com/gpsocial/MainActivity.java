@@ -3,12 +3,17 @@ package com.gpsocial;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 
 import com.gpsocial.adapter.TabsPagerAdapter;
 import com.loopj.android.http.RequestParams;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 
 public class MainActivity extends FragmentActivity implements
 		ActionBar.TabListener {
@@ -20,6 +25,7 @@ public class MainActivity extends FragmentActivity implements
 	private String[] tabs = {"Map", "Home", "Profile"};
 	
 	private String mUserId;
+	private double mLong = 0, mLat = -100;
 	private RequestParams mRequestParams = null;
 	
 	@Override
@@ -28,6 +34,18 @@ public class MainActivity extends FragmentActivity implements
 		setContentView(R.layout.activity_main);
 		
 		mUserId = getIntent().getStringExtra("userId");
+		
+		DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+	        .cacheInMemory(true)
+	        .cacheOnDisk(true)
+	        .bitmapConfig(Bitmap.Config.RGB_565)
+	        .imageScaleType(ImageScaleType.EXACTLY)
+	        .build();
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
+    		.defaultDisplayImageOptions(defaultOptions)
+    		.threadPoolSize(4)
+        	.build();
+        ImageLoader.getInstance().init(config);
 		
 		viewPager = (ViewPager) findViewById(R.id.pager);
 		actionBar = getActionBar();
@@ -72,7 +90,15 @@ public class MainActivity extends FragmentActivity implements
 			mRequestParams = new RequestParams();
 			mRequestParams.add("id", mUserId);
 		}
+		if (mLat > -100) {
+			mRequestParams.put("lng", Double.toString(mLong));
+			mRequestParams.put("lat", Double.toString(mLat));
+		}
 		return mRequestParams;
+	}
+	
+	public void setLocation(double lng, double lat) {
+		mLong = lng; mLat = lat;
 	}
 	
 	@Override
