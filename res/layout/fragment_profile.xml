@@ -6,14 +6,15 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp" >
 
         <ImageView
             android:id="@+id/avatar_pic"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="25dp"
+            android:layout_marginLeft="20dp"
             android:layout_marginTop="25dp"
             android:contentDescription="@string/profile_pic"
             android:src="@drawable/default_avatar" />
@@ -22,7 +23,7 @@
             android:id="@+id/username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="25dp"
+            android:layout_marginLeft="20dp"
             android:layout_marginTop="25dp"
             android:layout_toRightOf="@id/avatar_pic"
             android:text="@string/default_name"
@@ -34,7 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/username"
-            android:layout_marginLeft="25dp"
+            android:layout_marginLeft="20dp"
             android:layout_toRightOf="@id/avatar_pic"
             android:text="@string/default_handle"
             android:textSize="24sp"
@@ -66,7 +67,6 @@
     <ListView
         android:id="@+id/feed_list"
         android:layout_width="match_parent"
-        android:layout_height="600dp" >
+        android:layout_height="match_parent" >
     </ListView>
-
 </LinearLayout>

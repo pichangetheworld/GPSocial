@@ -1,41 +1,38 @@
 package com.gpsocial.adapter;
 
-import com.gpsocial.fragments.HomeFragment;
-import com.gpsocial.fragments.MapFragment;
-import com.gpsocial.fragments.ProfileFragment;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.gpsocial.fragments.HomeFragment;
+import com.gpsocial.fragments.MapFragment;
+import com.gpsocial.fragments.ProfileFragment;
+
 public class TabsPagerAdapter extends FragmentPagerAdapter {
 
+	List<Fragment> mFragments;
+	
 	public TabsPagerAdapter(FragmentManager fm) {
 		super(fm);
+		
+		mFragments = new ArrayList<Fragment>();
+		mFragments.add(new MapFragment());
+		mFragments.add(new HomeFragment());
+		mFragments.add(new ProfileFragment());
 	}
 
 	@Override
 	public Fragment getItem(int index) {
-
-		switch (index) {
-		case 0:
-			// Top Rated fragment activity
-			return new MapFragment();
-		case 1:
-			// Games fragment activity
-			return new HomeFragment();
-		case 2:
-			// Movies fragment activity
-			return new ProfileFragment();
-		}
-
-		return null;
+		return mFragments.get(index % 3);
 	}
 
 	@Override
 	public int getCount() {
 		// get item count - equal to number of tabs
-		return 3;
+		return mFragments.size();
 	}
 
 }

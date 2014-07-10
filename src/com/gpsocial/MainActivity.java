@@ -74,12 +74,10 @@ public class MainActivity extends FragmentActivity implements
 			}
 	
 			@Override
-			public void onPageScrolled(int arg0, float arg1, int arg2) {
-			}
+			public void onPageScrolled(int arg0, float arg1, int arg2) {}
 	
 			@Override
-			public void onPageScrollStateChanged(int arg0) {
-			}
+			public void onPageScrollStateChanged(int arg0) {}
 		});
 		
 		viewPager.setCurrentItem(1);
