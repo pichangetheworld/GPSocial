@@ -18,6 +18,9 @@ import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 public class MainActivity extends FragmentActivity implements
 		ActionBar.TabListener {
 	
+	private final int TWITTER_LINKED_FLAG = 1;
+	private final int FACEBOOK_LINKED_FLAG = 1 << 1;
+	
 	private ViewPager viewPager;
 	private TabsPagerAdapter mAdapter;
 	private ActionBar actionBar;
@@ -25,7 +28,8 @@ public class MainActivity extends FragmentActivity implements
 	private String[] tabs = {"Map", "Home", "Profile"};
 	
 	private String mUserId;
-	private double mLong = 0, mLat = -100;
+	private double mLong = 0, mLat = -100; // mLat is between [-90, 90]
+	private int mSocialNetworkFlags = 0;
 	private RequestParams mRequestParams = null;
 	
 	@Override
@@ -34,6 +38,7 @@ public class MainActivity extends FragmentActivity implements
 		setContentView(R.layout.activity_main);
 		
 		mUserId = getIntent().getStringExtra("userId");
+		mSocialNetworkFlags = getIntent().getIntExtra("socialNetworkFlags", 0);
 		
 		DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
 	        .cacheInMemory(true)
@@ -112,4 +117,6 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	public void onTabUnselected(Tab tab, FragmentTransaction ft) {}
 	
+	public int isTwitterLinked() { return mSocialNetworkFlags & TWITTER_LINKED_FLAG; }
+	public int isFacebookLinked() { return mSocialNetworkFlags & FACEBOOK_LINKED_FLAG; }
 }

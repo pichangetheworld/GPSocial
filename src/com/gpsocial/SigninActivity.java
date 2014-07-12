@@ -102,15 +102,6 @@ public class SigninActivity extends Activity {
 		}
 	}
 	
-	public void successfulSignIn(String userId) {
-		Intent i = new Intent(SigninActivity.this, MainActivity.class);
-		Bundle b = new Bundle();
-		b.putString("userId", userId);
-		i.putExtras(b);
-		finish();
-		startActivity(i);
-	}
-	
 	// Sign in with Twitter
 	public void twitterSignin(View view) {
 		new AsyncTask<Void, Void, Void>() {
@@ -190,7 +181,13 @@ public class SigninActivity extends Activity {
 						
 						if (auth.success) {
 							// open the main activity
-							successfulSignIn(auth.userId);
+							Intent i = new Intent(SigninActivity.this, MainActivity.class);
+							Bundle b = new Bundle();
+							b.putString("userId", auth.userId);
+							b.putInt("socialNetworkFlags", auth.socialNetworkFlags);
+							i.putExtras(b);
+							finish();
+							startActivity(i);
 						} else {
 							// show error
 							onSigninFailure();

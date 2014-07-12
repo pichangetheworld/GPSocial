@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -44,11 +45,18 @@ public class ProfileFragment extends Fragment {
 		username = (TextView) rootView.findViewById(R.id.username);
 		handle = (TextView) rootView.findViewById(R.id.handle);
 		avatar = (ImageView) rootView.findViewById(R.id.avatar_pic);
-		
-		// TODO
+
 		// get flags
 		// link Facebook
 		// link Twitter
+		if (((MainActivity) getActivity()).isFacebookLinked() == 1) {
+			System.out.println("pchan facebook is linked");
+			((Button) rootView.findViewById(R.id.link_facebook)).setVisibility(View.GONE);
+		}
+		if (((MainActivity) getActivity()).isTwitterLinked() == 1) {
+			System.out.println("pchan twitter is linked");
+			((Button) rootView.findViewById(R.id.link_twitter)).setVisibility(View.GONE);
+		}
 		
 		listview = (ListView) rootView.findViewById(R.id.feed_list);
 		listview.setAdapter(adapter);

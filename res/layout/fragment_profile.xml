@@ -54,14 +54,34 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/link_twitter"
-            android:layout_width="30dp"
-            android:layout_height="25dp"
+        <LinearLayout
+            style="?android:attr/buttonBarStyle"
+            android:id="@+id/link_buttons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_below="@id/link_account"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="85dp"
-            android:background="@drawable/link_twitter_selector" />
+            android:layout_alignLeft="@id/link_account"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal" >
+
+	        <Button
+	            android:id="@+id/link_facebook"
+	            style="?android:attr/buttonBarButtonStyle"
+	            android:layout_width="30dp"
+	            android:layout_height="25dp"
+	            android:layout_marginLeft="15dp"
+	            android:background="@drawable/link_facebook_selector" />
+	
+	        <Button
+	            android:id="@+id/link_twitter"
+	            style="?android:attr/buttonBarButtonStyle"
+	            android:layout_width="30dp"
+	            android:layout_height="25dp"
+	            android:layout_marginLeft="15dp"
+	            android:layout_marginRight="15dp"
+	            android:background="@drawable/link_twitter_selector" />
+
+        </LinearLayout>
     </RelativeLayout>
 
     <ListView
