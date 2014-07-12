@@ -36,7 +36,7 @@ public class SigninActivity extends Activity {
 	private UiLifecycleHelper uiHelper;
 
 	// callback for twitter
-	private static final String TWITTER_CALLBACK_URL = "oauth://gpsocial";
+	public static final String TWITTER_CALLBACK_URL = "oauth://gpsocial";
 	private static final String TWITTER_CONSUMER_KEY = "RDfBstGQ5U8zMxP5dLcF6ugI4";
 	private static final String TWITTER_CONSUMER_SECRET = "qJRiOLJDP2QqoWpv0rt7aAoCKBGmdQLd4J5FUeM7OVlx7qYyfO";
 
@@ -51,9 +51,9 @@ public class SigninActivity extends Activity {
 	private static SharedPreferences mSharedPreferences;
 
 	// Preference Constants
-	private static final String PREF_KEY_OAUTH_TOKEN = "oauth_token";
-	private static final String PREF_KEY_OAUTH_SECRET = "oauth_token_secret";
-	private static final String PREF_KEY_LOGIN = "gpsocialSignedIn";
+	private static final String TW_PREF_KEY_OAUTH_TOKEN = "tw_oauth_token";
+	private static final String TW_PREF_KEY_OAUTH_SECRET = "tw_oauth_token_secret";
+	private static final String TW_PREF_KEY_USER_ID = "tw_oauth_user_id";
 	
 	private Session.StatusCallback callback = new Session.StatusCallback() {
 		@Override
@@ -71,7 +71,7 @@ public class SigninActivity extends Activity {
 						}
 
 						request.put("token", session.getAccessToken());
-						loginToGPSocialFacebook(request);
+						signInToGPSocialFacebook(request);
 					}
 				}).executeAsync();
 			}
@@ -89,69 +89,30 @@ public class SigninActivity extends Activity {
 
 		setContentView(R.layout.activity_signin);
 
-		// If this was redirected from the Twitter page
-		// Parse the uri for the OAuth Verifier
-		String mUserId = mSharedPreferences.getString(PREF_KEY_LOGIN, "");
-		if (!mUserId.isEmpty()) {
-			Intent i = new Intent(SigninActivity.this, MainActivity.class);
-			Bundle b = new Bundle();
-			b.putString("userId", mUserId);
-			i.putExtras(b);
-			startActivity(i);
-		} else {
-			Uri uri = getIntent().getData();
-			if (uri != null && uri.toString().startsWith(TWITTER_CALLBACK_URL)) {
-				// oAuth verifier
-				String verifier = uri.getQueryParameter(URL_TWITTER_OAUTH_VERIFIER);
-
-				new AsyncTask<String, Void, AccessToken>() {
-					@Override
-					protected AccessToken doInBackground(String... params) {
-						AccessToken accessToken = null;
-						try {
-							// Get the access token
-							accessToken = twitter.getOAuthAccessToken(requestToken, params[0]);
-
-							// Shared Preferences
-							Editor e = mSharedPreferences.edit();
-
-							// After getting access token, access token secret
-							// store them in application preferences
-							e.putString(PREF_KEY_OAUTH_TOKEN, accessToken.getToken());
-							e.putString(PREF_KEY_OAUTH_SECRET, accessToken.getTokenSecret());
-							
-							e.commit(); // save changes
-
-							Log.e("Twitter OAuth Token", "> " + accessToken.getToken());
-						} catch (TwitterException e) {
-							// Check log for login errors
-							Log.e("Twitter Login Error", "> " + e.getMessage());
-						}
-						return accessToken;
-					}
-
-					@Override
-					protected void onPostExecute(AccessToken token) {
-						RequestParams request = new RequestParams();
-						request.put("userId", Long.toString(token.getUserId()));
-						request.put("screenName", token.getScreenName());
-						request.put("token", token.getToken());
-						request.put("tokenSecret", token.getTokenSecret());
-//						System.out.println("pchan: userId:" + Long.toString(token.getUserId())
-//								+ " screenName:" + token.getScreenName()
-//								+ " token: " + token.getToken()
-//								+ " tokenSecret:" + token.getTokenSecret());
-						loginToGPSocialTwitter(request);
-					}
-				}.execute(verifier);
-			}
+		// If the user's Twitter sign in was already saved
+		long mTwitterUserId = mSharedPreferences.getLong(TW_PREF_KEY_USER_ID, -1);
+		if (mTwitterUserId >= 0) {
+			String mTwitterToken = mSharedPreferences.getString(TW_PREF_KEY_OAUTH_TOKEN, "");
+			String mTwitterTokenSecret = mSharedPreferences.getString(TW_PREF_KEY_OAUTH_SECRET, "");
+			RequestParams request = new RequestParams();
+			request.put("userId", Long.toString(mTwitterUserId));
+			request.put("token", mTwitterToken);
+			request.put("tokenSecret", mTwitterTokenSecret);
+			signInToGPSocialTwitter(request);
 		}
 	}
 	
-	
+	public void successfulSignIn(String userId) {
+		Intent i = new Intent(SigninActivity.this, MainActivity.class);
+		Bundle b = new Bundle();
+		b.putString("userId", userId);
+		i.putExtras(b);
+		finish();
+		startActivity(i);
+	}
 	
 	// Sign in with Twitter
-	public void TwitterLogin(View view) {
+	public void twitterSignin(View view) {
 		new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected Void doInBackground(Void... params) {
@@ -161,15 +122,66 @@ public class SigninActivity extends Activity {
 		}.execute();
 	}
 
-	public void loginToGPSocialFacebook(RequestParams request) {
-		loginToGPSocial("authenticate_facebook", request);
+	// If this was redirected from the Twitter page
+	// Parse the uri for the OAuth Verifier
+	public void onSuccessfulTwitterSignin(Uri uri) {
+		if (uri != null && uri.toString().startsWith(TWITTER_CALLBACK_URL)) {
+			// oAuth verifier
+			String verifier = uri.getQueryParameter(URL_TWITTER_OAUTH_VERIFIER);
+
+			new AsyncTask<String, Void, AccessToken>() {
+				@Override
+				protected AccessToken doInBackground(String... params) {
+					AccessToken accessToken = null;
+					try {
+						// Get the access token
+						accessToken = twitter.getOAuthAccessToken(requestToken, params[0]);
+
+						// Shared Preferences
+						Editor e = mSharedPreferences.edit();
+
+						// After getting access token, access token secret
+						// store them in application preferences
+						e.putLong(TW_PREF_KEY_USER_ID, accessToken.getUserId());
+						e.putString(TW_PREF_KEY_OAUTH_TOKEN, accessToken.getToken());
+						e.putString(TW_PREF_KEY_OAUTH_SECRET, accessToken.getTokenSecret());
+						
+						e.commit(); // save changes
+
+						Log.e("Twitter OAuth Token", "> " + accessToken.getToken());
+					} catch (TwitterException e) {
+						// Check log for login errors
+						Log.e("Twitter Login Error", "> " + e.getMessage());
+					}
+					return accessToken;
+				}
+
+				@Override
+				protected void onPostExecute(AccessToken token) {
+					RequestParams request = new RequestParams();
+					request.put("userId", Long.toString(token.getUserId()));
+					request.put("screenName", token.getScreenName());
+					request.put("token", token.getToken());
+					request.put("tokenSecret", token.getTokenSecret());
+//					System.out.println("pchan: userId:" + Long.toString(token.getUserId())
+//							+ " screenName:" + token.getScreenName()
+//							+ " token: " + token.getToken()
+//							+ " tokenSecret:" + token.getTokenSecret());
+					signInToGPSocialTwitter(request);
+				}
+			}.execute(verifier);
+		}
 	}
 
-	public void loginToGPSocialTwitter(RequestParams request) {
-		loginToGPSocial("authenticate_twitter", request);
+	public void signInToGPSocialFacebook(RequestParams request) {
+		signInToGPSocial("authenticate_facebook", request);
 	}
 
-	public void loginToGPSocial(String endpoint, RequestParams request) {
+	public void signInToGPSocialTwitter(RequestParams request) {
+		signInToGPSocial("authenticate_twitter", request);
+	}
+
+	public void signInToGPSocial(String endpoint, RequestParams request) {
 		GPSocialClient.post(endpoint, request,
 				new TextHttpResponseHandler() {
 					@Override
@@ -177,20 +189,9 @@ public class SigninActivity extends Activity {
 						AuthData auth = new Gson().fromJson(response, AuthData.class);
 						
 						if (auth.success) {
-							// Store login userId
-							mSharedPreferences.edit().putString(PREF_KEY_LOGIN, auth.userId).commit();
-							
-							System.out.println("pchan: SUCCESS! user id is: " + auth.userId);
-							
 							// open the main activity
-							Intent i = new Intent(SigninActivity.this, MainActivity.class);
-							Bundle b = new Bundle();
-							b.putString("userId", auth.userId);
-							i.putExtras(b);
-							startActivity(i);
+							successfulSignIn(auth.userId);
 						} else {
-							System.err.println("pchan: Signin failed with auth success " + auth.success);
-							
 							// show error
 							onSigninFailure();
 						}
@@ -200,7 +201,8 @@ public class SigninActivity extends Activity {
 					public void onFailure(String responseBody, Throwable error) {
 						super.onFailure(responseBody, error);
 						
-						System.err.println("pchan: Signin error... " + error.getLocalizedMessage());
+						System.err.println("pchan: Signin error... " + 
+								error.getLocalizedMessage());
 						onSigninFailure();
 					}
 				});
@@ -228,6 +230,7 @@ public class SigninActivity extends Activity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+		System.out.println("pchan: onactivity result request:" + requestCode);
 		uiHelper.onActivityResult(requestCode, resultCode, data);
 	}
 
@@ -262,11 +265,9 @@ public class SigninActivity extends Activity {
 
 		try {
 			requestToken = twitter.getOAuthRequestToken(TWITTER_CALLBACK_URL);
-//			WebDialogFragment newFragment = new WebDialogFragment();
-//			newFragment.setUrl(requestToken.getAuthenticationURL());
-//		    newFragment.show(getFragmentManager(), "twitter_login");
-			SigninActivity.this.startActivity(new Intent(Intent.ACTION_VIEW,
-					Uri.parse(requestToken.getAuthenticationURL())));
+			WebDialogFragment newFragment = new WebDialogFragment();
+			newFragment.setUrl(requestToken.getAuthenticationURL());
+		    newFragment.show(getFragmentManager(), "twitter_login");
 		} catch (TwitterException e) {
 			e.printStackTrace();
 		}

@@ -76,7 +76,6 @@ public class ProfileFragment extends Fragment {
         			standardFeed.add(new FeedData(data));
         		}
 
-        		System.out.println("pchan name is " + profileFeed.name + " handle:" + profileFeed.twitter_handle);
         		username.setText(profileFeed.name);
         		handle.setText(profileFeed.twitter_handle);
         		
