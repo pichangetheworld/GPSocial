@@ -7,6 +7,10 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.view.MenuInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.PopupMenu;
 
 import com.gpsocial.adapter.TabsPagerAdapter;
 import com.loopj.android.http.RequestParams;
@@ -119,4 +123,19 @@ public class MainActivity extends FragmentActivity implements
 	
 	public int isTwitterLinked() { return mSocialNetworkFlags & TWITTER_LINKED_FLAG; }
 	public int isFacebookLinked() { return mSocialNetworkFlags & FACEBOOK_LINKED_FLAG; }
+	
+	public void updateFlags(int flags) { mSocialNetworkFlags = flags; }
+	
+	public void showPopup(View v) {
+	    PopupMenu popup = new PopupMenu(this, v);
+	    MenuInflater inflater = popup.getMenuInflater();
+	    inflater.inflate(R.menu.post_status, popup.getMenu());
+	    popup.show();
+	}
+	
+	public void postTweet(View v) {
+		EditText e = (EditText) findViewById(R.id.post_message);
+		String message = e.getText().toString();
+		// TODO post the string to post_tweet endpoint
+	}
 }

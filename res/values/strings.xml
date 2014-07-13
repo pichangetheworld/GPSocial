@@ -13,6 +13,12 @@
     <string name="default_map">Default Map</string>
     <string name="link_your_account">Link your account</string>
     
+    <string name="post_facebook">Facebook</string>
+    <string name="post_twitter">Twitter</string>
+    <string name="post_status_prompt">Post a Status</string>
+    <string name="post_tweet_prompt">Post a Tweet</string>
+    <string name="go">Go</string>
+    
     <integer name="google_play_services_version">4452000</integer>
     <string name="gps_config">GPS Config</string>
    

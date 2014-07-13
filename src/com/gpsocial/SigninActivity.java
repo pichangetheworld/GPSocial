@@ -1,5 +1,7 @@
 package com.gpsocial;
 
+import java.util.Arrays;
+
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -25,6 +27,7 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
+import com.facebook.widget.LoginButton;
 import com.google.gson.Gson;
 import com.gpsocial.client.GPSocialClient;
 import com.gpsocial.data.AuthData;
@@ -59,6 +62,7 @@ public class SigninActivity extends Activity {
 		@Override
 		public void call(final Session session, SessionState state,
 				Exception exception) {
+			System.out.println("pchan: session may have changed open?:" + state.isOpened());
 			if (state.isOpened()) {
 				// make request to the /me API
 				Request.newMeRequest(session, new Request.GraphUserCallback() {
@@ -69,7 +73,6 @@ public class SigninActivity extends Activity {
 						if (user != null) {
 							request.put("userId", user.getId());
 						}
-
 						request.put("token", session.getAccessToken());
 						signInToGPSocialFacebook(request);
 					}
@@ -88,6 +91,9 @@ public class SigninActivity extends Activity {
 		mSharedPreferences = getSharedPreferences("userDetails", MODE_PRIVATE);
 
 		setContentView(R.layout.activity_signin);
+		
+		LoginButton facebookLoginButton = (LoginButton) findViewById(R.id.facebookSigninButton);
+		facebookLoginButton.setReadPermissions(Arrays.asList("user_status", "user_friends", "read_stream"));
 
 		// If the user's Twitter sign in was already saved
 		long mTwitterUserId = mSharedPreferences.getLong(TW_PREF_KEY_USER_ID, -1);
@@ -184,7 +190,7 @@ public class SigninActivity extends Activity {
 							Intent i = new Intent(SigninActivity.this, MainActivity.class);
 							Bundle b = new Bundle();
 							b.putString("userId", auth.userId);
-							b.putInt("socialNetworkFlags", auth.socialNetworkFlags);
+							b.putInt("socialNetworkFlags", auth.connectedFlag);
 							i.putExtras(b);
 							finish();
 							startActivity(i);
@@ -227,7 +233,6 @@ public class SigninActivity extends Activity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		System.out.println("pchan: onactivity result request:" + requestCode);
 		uiHelper.onActivityResult(requestCode, resultCode, data);
 	}
 

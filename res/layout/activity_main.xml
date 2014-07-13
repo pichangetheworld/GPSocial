@@ -1,6 +1,41 @@
-<android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/pager"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity" />
+    android:orientation="vertical" >
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        tools:context=".MainActivity" />
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <ImageButton
+            android:layout_width="30dp"
+            android:layout_height="25dp"
+            android:contentDescription="@string/post_tweet_prompt"
+            android:onClick="showPopup"
+            android:src="@drawable/link_twitter_selector" />
+	    <EditText
+	        android:id="@+id/post_message"
+	        android:layout_width="0dp"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+	        android:inputType="textMultiLine"
+	        android:hint="@string/post_tweet_prompt" />
+	    <ImageButton 
+	        android:layout_width="30dp"
+	        android:layout_height="30dp"
+	        android:contentDescription="@string/go"
+            android:onClick="postTweet"
+	        android:src="@drawable/ic_action_send"/>
+    </LinearLayout>
+
+</LinearLayout>
