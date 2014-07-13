@@ -175,6 +175,9 @@ public class ProfileFragment extends Fragment {
             @Override
 			public void onFailure(String responseBody, Throwable error) {
 				super.onFailure(responseBody, error);
+
+				System.err.println("pchan: Error on Profile message:"
+						+ error.getLocalizedMessage());
 			}
         });
 	}

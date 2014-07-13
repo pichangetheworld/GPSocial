@@ -3,6 +3,7 @@
 
     <string name="app_name">GPSocial</string>
     <string name="action_settings">Settings</string>
+    <string name="sign_out">Sign out</string>
     
     <string name="profile_pic">Default Profile Pic</string>
     <string name="default_name">John Smith</string>

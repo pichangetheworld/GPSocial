@@ -11,6 +11,7 @@ import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -41,7 +42,8 @@ public class SigninActivity extends Activity {
 	// callback for twitter
 	public static final String TWITTER_CALLBACK_URL = "oauth://gpsocial";
 	private static final String TWITTER_CONSUMER_KEY = "RDfBstGQ5U8zMxP5dLcF6ugI4";
-	private static final String TWITTER_CONSUMER_SECRET = "qJRiOLJDP2QqoWpv0rt7aAoCKBGmdQLd4J5FUeM7OVlx7qYyfO";
+	private static final String TWITTER_CONSUMER_SECRET = 
+			"qJRiOLJDP2QqoWpv0rt7aAoCKBGmdQLd4J5FUeM7OVlx7qYyfO";
 
 	// Twitter oauth urls
 	private static final String URL_TWITTER_OAUTH_VERIFIER = "oauth_verifier";
@@ -62,7 +64,6 @@ public class SigninActivity extends Activity {
 		@Override
 		public void call(final Session session, SessionState state,
 				Exception exception) {
-			System.out.println("pchan: session may have changed open?:" + state.isOpened());
 			if (state.isOpened()) {
 				// make request to the /me API
 				Request.newMeRequest(session, new Request.GraphUserCallback() {
@@ -86,24 +87,32 @@ public class SigninActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		uiHelper = new UiLifecycleHelper(this, callback);
 		uiHelper.onCreate(savedInstanceState);
-
+		
 		// Shared Preferences
 		mSharedPreferences = getSharedPreferences("userDetails", MODE_PRIVATE);
 
+		if (getIntent().getBooleanExtra("SIGNOUT", false)) {
+			Session.getActiveSession().close();
+			mSharedPreferences.edit().remove(TW_PREF_KEY_USER_ID)
+				.remove(TW_PREF_KEY_OAUTH_TOKEN)
+				.remove(TW_PREF_KEY_OAUTH_SECRET).commit();
+		}
+		
 		setContentView(R.layout.activity_signin);
 		
 		LoginButton facebookLoginButton = (LoginButton) findViewById(R.id.facebookSigninButton);
-		facebookLoginButton.setReadPermissions(Arrays.asList("user_status", "user_friends", "read_stream"));
+		facebookLoginButton.setReadPermissions(
+				Arrays.asList("user_status", "user_friends", "read_stream"));
 
 		// If the user's Twitter sign in was already saved
 		long mTwitterUserId = mSharedPreferences.getLong(TW_PREF_KEY_USER_ID, -1);
 		if (mTwitterUserId >= 0) {
 			String mTwitterToken = mSharedPreferences.getString(TW_PREF_KEY_OAUTH_TOKEN, "");
-			String mTwitterTokenSecret = mSharedPreferences.getString(TW_PREF_KEY_OAUTH_SECRET, "");
+			String mTwitterSecret = mSharedPreferences.getString(TW_PREF_KEY_OAUTH_SECRET, "");
 			RequestParams request = new RequestParams();
 			request.put("userId", Long.toString(mTwitterUserId));
 			request.put("token", mTwitterToken);
-			request.put("tokenSecret", mTwitterTokenSecret);
+			request.put("tokenSecret", mTwitterSecret);
 			signInToGPSocialTwitter(request);
 		}
 	}
@@ -179,6 +188,18 @@ public class SigninActivity extends Activity {
 	}
 
 	public void signInToGPSocial(String endpoint, RequestParams request) {
+		final ProgressDialog pd = new ProgressDialog(this);
+		pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		pd.setMessage("Signing in...");
+		pd.setIndeterminate(true);
+		pd.setCancelable(false);
+		pd.show();
+		new Thread() {
+			@Override
+			public void run() {
+				pd.dismiss();
+			}
+		}.start();
 		GPSocialClient.post(endpoint, request,
 				new TextHttpResponseHandler() {
 					@Override

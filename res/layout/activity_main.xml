@@ -16,13 +16,12 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="horizontal" >
-
         <ImageButton
-            android:layout_width="30dp"
-            android:layout_height="25dp"
+            android:layout_width="36dp"
+            android:layout_height="30dp"
             android:contentDescription="@string/post_tweet_prompt"
             android:onClick="showPopup"
-            android:src="@drawable/link_twitter_selector" />
+            android:background="@drawable/twitter_logo_blue" />
 	    <EditText
 	        android:id="@+id/post_message"
 	        android:layout_width="0dp"
@@ -31,8 +30,8 @@
 	        android:inputType="textMultiLine"
 	        android:hint="@string/post_tweet_prompt" />
 	    <ImageButton 
-	        android:layout_width="30dp"
-	        android:layout_height="30dp"
+	        android:layout_width="40dp"
+	        android:layout_height="40dp"
 	        android:contentDescription="@string/go"
             android:onClick="postTweet"
 	        android:src="@drawable/ic_action_send"/>

@@ -94,7 +94,7 @@ public class HomeFragment extends Fragment {
 			public void onFailure(int statusCode, Header[] headers,
 					byte[] errorResponse, Throwable e) {
 				// called when response HTTP status is "4XX" (eg. 401, 403, 404)
-				System.err.println("pchan: Error: " + statusCode + " message:"
+				System.err.println("pchan: Error on News Feed: " + statusCode + " message:"
 						+ e.getLocalizedMessage());
 			}
 		});
