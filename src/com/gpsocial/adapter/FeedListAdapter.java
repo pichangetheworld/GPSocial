@@ -75,6 +75,8 @@ public class FeedListAdapter extends ArrayAdapter<FeedData> {
         			.format(post.created_at));
         
         ImageLoader.getInstance().displayImage(post.profile_img_url, holder.profilePicture);
+
+		notifyDataSetChanged();
         
         return row;
 	}

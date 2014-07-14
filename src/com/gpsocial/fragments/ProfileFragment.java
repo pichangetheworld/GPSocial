@@ -61,7 +61,7 @@ public class ProfileFragment extends Fragment {
 					// callback after Graph API response with user object
 					@Override
 					public void onCompleted(GraphUser user, Response response) {
-						JSONObject request = new JSONObject();
+						JSONObject request = ((MainActivity) getActivity()).getHeader();
 						try {
 							if (user != null) {
 								request.put("userId", user.getId());
@@ -145,6 +145,7 @@ public class ProfileFragment extends Fragment {
 		// link Facebook
 		// link Twitter
 		final LoginButton linkFacebook = (LoginButton) rootView.findViewById(R.id.link_facebook);
+		linkFacebook.setText("");
 		linkFacebook.setBackgroundResource(R.drawable.link_facebook_selector);
 		if (((MainActivity) getActivity()).isFacebookLinked() != 0) {
 			linkFacebook.setVisibility(View.GONE);
@@ -166,15 +167,16 @@ public class ProfileFragment extends Fragment {
 		adapter.notifyDataSetChanged();
 	}
 	
+	// get JSON string from server
 	public void getResultFromServer() {
-		GPSocialClient.get("profile", ((MainActivity) getActivity()).getRequestParams(),
+		MainActivity act = (MainActivity) getActivity();
+		act.showLoading();
+		GPSocialClient.get("profile", act.getRequestParams(),
 				new TextHttpResponseHandler() {
 					@Override
 					public void onSuccess(String response) {
-						System.out.println("pchan: response was successful "
-								+ response);
-						ProfileData profileFeed = new Gson().fromJson(response,
-								ProfileData.class);
+						System.out.println("pchan: response was successful " + response);
+						ProfileData profileFeed = new Gson().fromJson(response, ProfileData.class);
 						standardFeed.clear();
 						for (TwitterData data : profileFeed.feed) {
 							standardFeed.add(new FeedData(data));

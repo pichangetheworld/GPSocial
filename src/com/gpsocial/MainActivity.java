@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.ActionBar;
+import android.app.ProgressDialog;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
 import android.content.Context;
@@ -50,6 +51,7 @@ public class MainActivity extends FragmentActivity implements
 	private double mLong = 0, mLat = -100; // valid latitude is between [-90, 90]
 	private int mSocialNetworkFlags = 0;
 	private RequestParams mRequestParams = null;
+	private JSONObject mHeader = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +128,26 @@ public class MainActivity extends FragmentActivity implements
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
+	}
+	
+	public JSONObject getHeader() {
+		if (mHeader == null) {
+			mHeader = new JSONObject();
+			try {
+				mHeader.put("id", mUserId);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		if (mLat > -100) {
+			try {
+				mHeader.put("lng", Double.toString(mLong));
+				mHeader.put("lat", Double.toString(mLat));
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+		return mHeader;
 	}
 	
 	public RequestParams getRequestParams() {
@@ -215,5 +237,22 @@ public class MainActivity extends FragmentActivity implements
 				System.err.println("pchan: error encoding tweet " + e1.getLocalizedMessage());
 			}
 		}
+	}
+	
+	public void showLoading() {
+		final ProgressDialog pd = new ProgressDialog(this);
+		pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		pd.setMessage("Signing in...");
+		pd.setIndeterminate(true);
+		pd.setCancelable(false);
+		if (!isFinishing())
+			pd.show();
+		new Thread() {
+			@Override
+			public void run() {
+				if (pd != null)
+					pd.dismiss();
+			}
+		}.start();
 	}
 }

@@ -100,7 +100,8 @@ public class SigninActivity extends Activity {
 		mSharedPreferences = getSharedPreferences("userDetails", MODE_PRIVATE);
 
 		if (getIntent().getBooleanExtra("SIGNOUT", false)) {
-			Session.getActiveSession().close();
+			Session.getActiveSession().closeAndClearTokenInformation();
+
 			mSharedPreferences.edit()
 				.remove(TW_PREF_KEY_USER_ID)
 				.remove(TW_PREF_KEY_OAUTH_TOKEN)
@@ -206,11 +207,13 @@ public class SigninActivity extends Activity {
 		pd.setMessage("Signing in...");
 		pd.setIndeterminate(true);
 		pd.setCancelable(false);
-		pd.show();
+		if (!isFinishing())
+			pd.show();
 		new Thread() {
 			@Override
 			public void run() {
-				pd.dismiss();
+				if (pd != null)
+					pd.dismiss();
 			}
 		}.start();
 		try {
