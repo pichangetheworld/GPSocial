@@ -31,7 +31,6 @@ public class WebDialogFragment extends DialogFragment {
 				Uri uri = Uri.parse(url);
 				((SigninActivity) mFragment.getActivity()).onSuccessfulTwitterSignin(uri);
 				mFragment.dismiss();
-
 				return true;
 			}
 			return true;
@@ -44,8 +43,8 @@ public class WebDialogFragment extends DialogFragment {
 		View v = inflater.inflate(R.layout.web_fragment, container, false);
 
 		wv = (WebView) v.findViewById(R.id.webview);
-		wv.loadUrl(mUrl);
 		wv.setWebViewClient(new TwitterWebViewClient(this));
+		wv.loadUrl(mUrl);
 
 		return v;
 	}

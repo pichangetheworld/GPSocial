@@ -164,7 +164,8 @@ public class MapFragment extends Fragment implements LocationListener {
 
         switchStatus.setText("Successfully detected your location");
         
-        ((MainActivity) getActivity()).setLocation(longitude, latitude);
+        if (getActivity() != null && !getActivity().isFinishing())
+        	((MainActivity) getActivity()).setLocation(longitude, latitude);
 	}
 
 	@Override

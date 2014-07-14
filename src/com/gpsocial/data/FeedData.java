@@ -6,6 +6,7 @@ import java.util.Locale;
 
 public class FeedData {
 	public static enum Source {
+		NONE,  // 0
 		TWITTER, // 1
 		FACEBOOK // 2
 	};

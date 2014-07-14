@@ -1,8 +1,11 @@
 package com.gpsocial;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
-import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -35,7 +38,6 @@ import com.google.gson.Gson;
 import com.gpsocial.client.GPSocialClient;
 import com.gpsocial.data.AuthData;
 import com.gpsocial.fragments.WebDialogFragment;
-import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
 
 public class SigninActivity extends Activity {
@@ -43,9 +45,9 @@ public class SigninActivity extends Activity {
 
 	// callback for twitter
 	public static final String TWITTER_CALLBACK_URL = "oauth://gpsocial";
-	private static final String TWITTER_CONSUMER_KEY = "RDfBstGQ5U8zMxP5dLcF6ugI4";
+	private static final String TWITTER_CONSUMER_KEY = "rziw2sr1LdJCSHa2KiKte7cOA";
 	private static final String TWITTER_CONSUMER_SECRET = 
-			"qJRiOLJDP2QqoWpv0rt7aAoCKBGmdQLd4J5FUeM7OVlx7qYyfO";
+			"RdZqDHYsacJKqfFbStKDUDuE8Z0rNd72nXBEe4TFfS4g6ahEKO";
 
 	// Twitter oauth urls
 	private static final String URL_TWITTER_OAUTH_VERIFIER = "oauth_verifier";
@@ -72,11 +74,15 @@ public class SigninActivity extends Activity {
 					// callback after Graph API response with user object
 					@Override
 					public void onCompleted(GraphUser user, Response response) {
-						RequestParams request = new RequestParams();
-						if (user != null) {
-							request.put("userId", user.getId());
+				        JSONObject request = new JSONObject();
+						try {
+							if (user != null) {
+								request.put("userId", user.getId());
+							}
+							request.put("token", session.getAccessToken());
+						} catch (JSONException e) {
+							e.printStackTrace();
 						}
-						request.put("token", session.getAccessToken());
 						signInToGPSocialFacebook(request);
 					}
 				}).executeAsync();
@@ -112,10 +118,14 @@ public class SigninActivity extends Activity {
 		if (mTwitterUserId >= 0) {
 			String mTwitterToken = mSharedPreferences.getString(TW_PREF_KEY_OAUTH_TOKEN, "");
 			String mTwitterSecret = mSharedPreferences.getString(TW_PREF_KEY_OAUTH_SECRET, "");
-			RequestParams request = new RequestParams();
-			request.put("userId", Long.toString(mTwitterUserId));
-			request.put("token", mTwitterToken);
-			request.put("tokenSecret", mTwitterSecret);
+	        JSONObject request = new JSONObject();
+	        try {
+				request.put("userId", Long.toString(mTwitterUserId));
+				request.put("token", mTwitterToken);
+				request.put("tokenSecret", mTwitterSecret);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
 			signInToGPSocialTwitter(request);
 		}
 	}
@@ -167,30 +177,30 @@ public class SigninActivity extends Activity {
 
 				@Override
 				protected void onPostExecute(AccessToken token) {
-					RequestParams request = new RequestParams();
-					request.put("userId", Long.toString(token.getUserId()));
-					request.put("screenName", token.getScreenName());
-					request.put("token", token.getToken());
-					request.put("tokenSecret", token.getTokenSecret());
-//					System.out.println("pchan: userId:" + Long.toString(token.getUserId())
-//							+ " screenName:" + token.getScreenName()
-//							+ " token: " + token.getToken()
-//							+ " tokenSecret:" + token.getTokenSecret());
+			        JSONObject request = new JSONObject();
+			        try {
+						request.put("userId", Long.toString(token.getUserId()));
+						request.put("screenName", token.getScreenName());
+						request.put("token", token.getToken());
+						request.put("tokenSecret", token.getTokenSecret());
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
 					signInToGPSocialTwitter(request);
 				}
 			}.execute(verifier);
 		}
 	}
 
-	public void signInToGPSocialFacebook(RequestParams request) {
+	public void signInToGPSocialFacebook(JSONObject request) {
 		signInToGPSocial("authenticate_facebook", request);
 	}
 
-	public void signInToGPSocialTwitter(RequestParams request) {
+	public void signInToGPSocialTwitter(JSONObject request) {
 		signInToGPSocial("authenticate_twitter", request);
 	}
 
-	public void signInToGPSocial(String endpoint, RequestParams request) {
+	public void signInToGPSocial(String endpoint, JSONObject request) {
 		final ProgressDialog pd = new ProgressDialog(this);
 		pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 		pd.setMessage("Signing in...");
@@ -203,37 +213,43 @@ public class SigninActivity extends Activity {
 				pd.dismiss();
 			}
 		}.start();
-		GPSocialClient.post(this, endpoint, 
-				new ByteArrayEntity(new Gson().toJson(request).getBytes()),
-				new TextHttpResponseHandler() {
-					@Override
-					public void onSuccess(String response) {
-						AuthData auth = new Gson().fromJson(response, AuthData.class);
-						
-						if (auth.success) {
-							// open the main activity
-							Intent i = new Intent(SigninActivity.this, MainActivity.class);
-							Bundle b = new Bundle();
-							b.putString("userId", auth.userId);
-							b.putInt("socialNetworkFlags", auth.connectedFlag);
-							i.putExtras(b);
-							finish();
-							startActivity(i);
-						} else {
-							// show error
+		try {
+			GPSocialClient.post(this, endpoint, 
+					new StringEntity(request.toString()), 
+					new TextHttpResponseHandler() {
+						@Override
+						public void onSuccess(String response) {
+							AuthData auth = new Gson().fromJson(response, AuthData.class);
+							
+							if (auth.success) {
+								// open the main activity
+								Intent i = new Intent(SigninActivity.this, MainActivity.class);
+								Bundle b = new Bundle();
+								b.putString("userId", auth.userId);
+								b.putInt("socialNetworkFlags", auth.connectedFlag);
+								i.putExtras(b);
+								finish();
+								startActivity(i);
+							} else {
+								// show error
+								onSigninFailure();
+							}
+						}
+
+						@Override
+						public void onFailure(String responseBody, Throwable error) {
+							super.onFailure(responseBody, error);
+							
+							System.err.println("pchan: Signin error... " + 
+									error.getLocalizedMessage());
 							onSigninFailure();
 						}
-					}
-
-					@Override
-					public void onFailure(String responseBody, Throwable error) {
-						super.onFailure(responseBody, error);
-						
-						System.err.println("pchan: Signin error... " + 
-								error.getLocalizedMessage());
-						onSigninFailure();
-					}
-				});
+					});
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			System.err.println("pchan: unsupported coding exception " + e.getLocalizedMessage());
+			onSigninFailure();
+		}
 	}
 	
 	private void onSigninFailure() {

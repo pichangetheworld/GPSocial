@@ -75,6 +75,7 @@ public class HomeFragment extends Fragment {
 		GPSocialClient.get("news_feed", ((MainActivity) getActivity()).getRequestParams(), new TextHttpResponseHandler() {
 			@Override
 			public void onSuccess(String response) {
+				System.out.println("pchan: response from server " + response);
 				TwitterData[] feedFromServer = new Gson().fromJson(response, _TYPE);
 				
 				standardFeed.clear();

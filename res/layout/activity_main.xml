@@ -34,7 +34,7 @@
 	        android:layout_height="40dp"
 	        android:contentDescription="@string/go"
             android:onClick="postTweet"
-	        android:src="@drawable/ic_action_send"/>
+	        android:background="@drawable/ic_action_send"/>
     </LinearLayout>
 
 </LinearLayout>

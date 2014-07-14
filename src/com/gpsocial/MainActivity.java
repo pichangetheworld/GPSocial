@@ -1,10 +1,15 @@
 package com.gpsocial;
 
-import org.apache.http.entity.ByteArrayEntity;
+import java.io.UnsupportedEncodingException;
+
+import org.apache.http.entity.StringEntity;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -14,11 +19,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.gpsocial.adapter.TabsPagerAdapter;
 import com.gpsocial.client.GPSocialClient;
 import com.gpsocial.data.FeedData;
@@ -170,27 +175,45 @@ public class MainActivity extends FragmentActivity implements
 		
 		if (!message.isEmpty()) {
 			System.out.println("pchan: posting a tweet " + message);
-			RequestParams p = getRequestParams();
-			p.put("message", message);
-			p.put("source", FeedData.Source.TWITTER);
-			GPSocialClient.post(this, "post_message",
-					new ByteArrayEntity(new Gson().toJson(p).getBytes()),
-					new TextHttpResponseHandler() {
-						@Override
-						public void onSuccess(String response) {
-							e.setText("");
-							Toast.makeText(MainActivity.this, 
-									"Successfully posted!", Toast.LENGTH_LONG)
-									.show();
-						}
+	        JSONObject p = new JSONObject();
+	        try {
+	        	p.put("id", mUserId);
+				p.put("message", message);
+				p.put("source", FeedData.Source.TWITTER.ordinal());
+				if (mLat > -100) {
+					p.put("lng", Double.toString(mLong));
+					p.put("lat", Double.toString(mLat));
+				}
+			} catch (JSONException e2) {
+				e2.printStackTrace();
+			}
+			try {
+				GPSocialClient.post(this, "post_message",
+						new StringEntity(p.toString()),
+						new TextHttpResponseHandler() {
+							@Override
+							public void onSuccess(String response) {
+								e.setText("");
+								e.clearFocus();
+								InputMethodManager imm = (InputMethodManager)getSystemService(
+									      Context.INPUT_METHOD_SERVICE);
+								imm.hideSoftInputFromWindow(e.getWindowToken(), 0);
+								Toast.makeText(MainActivity.this, 
+										"Successfully posted!", Toast.LENGTH_LONG)
+										.show();
+							}
 
-						@Override
-						public void onFailure(String responseBody, Throwable error) {
-							super.onFailure(responseBody, error);
-							System.err.println("pchan: Error while posting a tweet... " + 
-									error.getLocalizedMessage());
-						}
-					});
+							@Override
+							public void onFailure(String responseBody, Throwable error) {
+								super.onFailure(responseBody, error);
+								System.err.println("pchan: Error while posting a tweet... " + 
+										error.getLocalizedMessage());
+							}
+						});
+			} catch (UnsupportedEncodingException e1) {
+				e1.printStackTrace();
+				System.err.println("pchan: error encoding tweet " + e1.getLocalizedMessage());
+			}
 		}
 	}
 }

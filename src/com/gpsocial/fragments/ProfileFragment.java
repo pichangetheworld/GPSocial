@@ -1,9 +1,12 @@
 package com.gpsocial.fragments;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -34,7 +37,6 @@ import com.gpsocial.data.AuthData;
 import com.gpsocial.data.FeedData;
 import com.gpsocial.data.ProfileData;
 import com.gpsocial.data.TwitterData;
-import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -59,52 +61,62 @@ public class ProfileFragment extends Fragment {
 					// callback after Graph API response with user object
 					@Override
 					public void onCompleted(GraphUser user, Response response) {
-						RequestParams request = ((MainActivity) getActivity()).getRequestParams();
-						if (user != null) {
-							request.put("userId", user.getId());
+						JSONObject request = new JSONObject();
+						try {
+							if (user != null) {
+								request.put("userId", user.getId());
+							}
+							request.put("token", session.getAccessToken());
+						} catch (JSONException e) {
 						}
-						request.put("token", session.getAccessToken());
 						signInToGPSocialFacebook(request);
 					}
 
-					private void signInToGPSocialFacebook(RequestParams request) {
-						GPSocialClient.post(getActivity(), "authenticate_facebook",
-								new ByteArrayEntity(new Gson().toJson(request).getBytes()),
-								new TextHttpResponseHandler() {
-									@Override
-									public void onSuccess(String response) {
-										AuthData auth = new Gson().fromJson(response, AuthData.class);
-										
-										if (auth.success) {
-											((MainActivity) getActivity()).updateFlags(auth.connectedFlag);
-										} else {
-											// show error
+					private void signInToGPSocialFacebook(JSONObject request) {
+						try {
+							GPSocialClient.post(getActivity(), "authenticate_facebook",
+									new StringEntity(request.toString()),
+									new TextHttpResponseHandler() {
+										@Override
+										public void onSuccess(String response) {
+											AuthData auth = new Gson().fromJson(response, AuthData.class);
+											
+											if (auth.success) {
+												((MainActivity) getActivity()).updateFlags(auth.connectedFlag);
+											} else {
+												// show error
+												onSigninFailure();
+											}
+										}
+
+										@Override
+										public void onFailure(String responseBody, Throwable error) {
+											super.onFailure(responseBody, error);
+											
+											System.err.println("pchan: Signin error... " + 
+													error.getLocalizedMessage());
 											onSigninFailure();
 										}
-									}
+									});
+						} catch (UnsupportedEncodingException e) {
+							e.printStackTrace();
+							System.err.println("pchan: encoding exception... " + 
+									e.getLocalizedMessage());
+							onSigninFailure();
+						}						
+					}
 
-									@Override
-									public void onFailure(String responseBody, Throwable error) {
-										super.onFailure(responseBody, error);
-										
-										System.err.println("pchan: Signin error... " + 
-												error.getLocalizedMessage());
-										onSigninFailure();
-									}
-
-									private void onSigninFailure() {
-										new AlertDialog.Builder(getActivity())
-												.setTitle("Error")
-												.setMessage("An error happened on sign in. Please try again later.")
-												.setPositiveButton(android.R.string.ok,
-														new DialogInterface.OnClickListener() {
-															public void onClick(DialogInterface dialog,
-																	int which) {
-															}
-														})
-												.show();
-									}
-								});						
+					private void onSigninFailure() {
+						new AlertDialog.Builder(getActivity())
+								.setTitle("Error")
+								.setMessage("An error happened on sign in. Please try again later.")
+								.setPositiveButton(android.R.string.ok,
+										new DialogInterface.OnClickListener() {
+											public void onClick(DialogInterface dialog,
+													int which) {
+											}
+										})
+								.show();
 					}
 				}).executeAsync();
 			}
@@ -144,9 +156,6 @@ public class ProfileFragment extends Fragment {
 		listview = (ListView) rootView.findViewById(R.id.feed_list);
 		listview.setAdapter(adapter);
 		
-		// TODO
-		// post Tweets
-		
 		getResultFromServer();
 		
 		return rootView;
@@ -158,31 +167,36 @@ public class ProfileFragment extends Fragment {
 	}
 	
 	public void getResultFromServer() {
-		GPSocialClient.get("profile", ((MainActivity) getActivity()).getRequestParams(), new TextHttpResponseHandler() {
-			@Override
-			public void onSuccess(String response) {
-				ProfileData profileFeed = new Gson().fromJson(response, ProfileData.class);
-        		standardFeed.clear();
-        		for (TwitterData data : profileFeed.feed) {
-        			standardFeed.add(new FeedData(data));
-        		}
+		GPSocialClient.get("profile", ((MainActivity) getActivity()).getRequestParams(),
+				new TextHttpResponseHandler() {
+					@Override
+					public void onSuccess(String response) {
+						System.out.println("pchan: response was successful "
+								+ response);
+						ProfileData profileFeed = new Gson().fromJson(response,
+								ProfileData.class);
+						standardFeed.clear();
+						for (TwitterData data : profileFeed.feed) {
+							standardFeed.add(new FeedData(data));
+						}
 
-        		username.setText(profileFeed.name);
-        		handle.setText(profileFeed.twitter_handle);
-        		
-        		ImageLoader.getInstance().displayImage(profileFeed.profile_img_url_tw, avatar);
-        	    
-        		updateFeed();
-			}
-			
-            @Override
-			public void onFailure(String responseBody, Throwable error) {
-				super.onFailure(responseBody, error);
+						username.setText(profileFeed.name);
+						handle.setText(profileFeed.twitter_handle);
 
-				System.err.println("pchan: Error on Profile message:"
-						+ error.getLocalizedMessage());
-			}
-        });
+						ImageLoader.getInstance().displayImage(
+								profileFeed.profile_img_url_tw, avatar);
+
+						updateFeed();
+					}
+
+					@Override
+					public void onFailure(String responseBody, Throwable error) {
+						super.onFailure(responseBody, error);
+
+						System.err.println("pchan: Error on Profile message:"
+								+ error.getLocalizedMessage());
+					}
+				});
 	}
 
 

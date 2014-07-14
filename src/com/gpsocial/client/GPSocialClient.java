@@ -9,7 +9,7 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 public class GPSocialClient {
-	private static final String BASE_URL = "http://54.200.74.117:8080/";
+	private static final String BASE_URL = "http://54.191.45.171:8080/";
 	
 	private static AsyncHttpClient client = new AsyncHttpClient();
 	
@@ -20,7 +20,7 @@ public class GPSocialClient {
 
 	public static void post(Context context, String url, HttpEntity e,
 			AsyncHttpResponseHandler responseHandler) {
-		System.out.println("pchan: posting entity " + e);
+		System.out.println("pchan: posting entity " + e + " to endpoint " + url);
 		client.post(context, getAbsoluteUrl(url), e, "application/json", responseHandler);
 	}
 
