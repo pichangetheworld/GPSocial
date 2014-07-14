@@ -240,19 +240,25 @@ public class MainActivity extends FragmentActivity implements
 	}
 	
 	public void showLoading() {
-		final ProgressDialog pd = new ProgressDialog(this);
-		pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		pd.setMessage("Signing in...");
-		pd.setIndeterminate(true);
-		pd.setCancelable(false);
-		if (!isFinishing())
-			pd.show();
-		new Thread() {
+		runOnUiThread(new Runnable() {
+			
 			@Override
 			public void run() {
-				if (pd != null)
-					pd.dismiss();
+				final ProgressDialog pd = new ProgressDialog(MainActivity.this);
+				pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+				pd.setMessage("Signing in...");
+				pd.setIndeterminate(true);
+				pd.setCancelable(false);
+				if (!isFinishing())
+					pd.show();
+				new Thread() {
+					@Override
+					public void run() {
+						if (pd != null)
+							pd.dismiss();
+					}
+				}.start();
 			}
-		}.start();
+		});
 	}
 }
