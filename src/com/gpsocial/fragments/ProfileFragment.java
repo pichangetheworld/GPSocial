@@ -3,6 +3,8 @@ package com.gpsocial.fragments;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.entity.ByteArrayEntity;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -66,7 +68,8 @@ public class ProfileFragment extends Fragment {
 					}
 
 					private void signInToGPSocialFacebook(RequestParams request) {
-						GPSocialClient.post("authenticate_facebook", request,
+						GPSocialClient.post(getActivity(), "authenticate_facebook",
+								new ByteArrayEntity(new Gson().toJson(request).getBytes()),
 								new TextHttpResponseHandler() {
 									@Override
 									public void onSuccess(String response) {

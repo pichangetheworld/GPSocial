@@ -1,5 +1,9 @@
 package com.gpsocial.client;
 
+import org.apache.http.HttpEntity;
+
+import android.content.Context;
+
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -14,9 +18,10 @@ public class GPSocialClient {
 		client.get(getAbsoluteUrl(url), params, responseHandler);
 	}
 
-	public static void post(String url, RequestParams params,
+	public static void post(Context context, String url, HttpEntity e,
 			AsyncHttpResponseHandler responseHandler) {
-		client.post(getAbsoluteUrl(url), params, responseHandler);
+		System.out.println("pchan: posting entity " + e);
+		client.post(context, getAbsoluteUrl(url), e, "application/json", responseHandler);
 	}
 
 	private static String getAbsoluteUrl(String relativeUrl) {

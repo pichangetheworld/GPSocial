@@ -1,5 +1,7 @@
 package com.gpsocial;
 
+import org.apache.http.entity.ByteArrayEntity;
+
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
@@ -16,8 +18,10 @@ import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.gpsocial.adapter.TabsPagerAdapter;
 import com.gpsocial.client.GPSocialClient;
+import com.gpsocial.data.FeedData;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -75,7 +79,6 @@ public class MainActivity extends FragmentActivity implements
 			actionBar.addTab(actionBar.newTab().setText(tab_name)
 					.setTabListener(this));
 		}
-
 
 		/**
 		 * on swiping the viewpager make respective tab selected
@@ -166,9 +169,12 @@ public class MainActivity extends FragmentActivity implements
 		String message = e.getText().toString();
 		
 		if (!message.isEmpty()) {
-			// TODO post the string to post_tweet endpoint
 			System.out.println("pchan: posting a tweet " + message);
-			GPSocialClient.post("post_message", getRequestParams(),
+			RequestParams p = getRequestParams();
+			p.put("message", message);
+			p.put("source", FeedData.Source.TWITTER);
+			GPSocialClient.post(this, "post_message",
+					new ByteArrayEntity(new Gson().toJson(p).getBytes()),
 					new TextHttpResponseHandler() {
 						@Override
 						public void onSuccess(String response) {

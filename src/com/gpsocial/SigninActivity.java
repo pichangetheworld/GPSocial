@@ -2,6 +2,8 @@ package com.gpsocial;
 
 import java.util.Arrays;
 
+import org.apache.http.entity.ByteArrayEntity;
+
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -93,7 +95,8 @@ public class SigninActivity extends Activity {
 
 		if (getIntent().getBooleanExtra("SIGNOUT", false)) {
 			Session.getActiveSession().close();
-			mSharedPreferences.edit().remove(TW_PREF_KEY_USER_ID)
+			mSharedPreferences.edit()
+				.remove(TW_PREF_KEY_USER_ID)
 				.remove(TW_PREF_KEY_OAUTH_TOKEN)
 				.remove(TW_PREF_KEY_OAUTH_SECRET).commit();
 		}
@@ -200,7 +203,8 @@ public class SigninActivity extends Activity {
 				pd.dismiss();
 			}
 		}.start();
-		GPSocialClient.post(endpoint, request,
+		GPSocialClient.post(this, endpoint, 
+				new ByteArrayEntity(new Gson().toJson(request).getBytes()),
 				new TextHttpResponseHandler() {
 					@Override
 					public void onSuccess(String response) {

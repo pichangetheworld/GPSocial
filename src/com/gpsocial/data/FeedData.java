@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 public class FeedData {
-	public enum Source {
+	public static enum Source {
 		TWITTER, // 1
 		FACEBOOK // 2
 	};
