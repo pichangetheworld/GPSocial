@@ -6,6 +6,9 @@ import java.util.List;
 
 import org.apache.http.Header;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -61,12 +64,26 @@ public class HomeFragment extends Fragment {
 
 	// get JSON string from server
 	public void getResultFromServer() {
-		MainActivity act = (MainActivity) getActivity();
-		act.showLoading();
+		final MainActivity act = (MainActivity) getActivity();
+		final ProgressDialog pd = new ProgressDialog(act);
+		pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		pd.setMessage("Loading...");
+		pd.setIndeterminate(true);
+		pd.setCancelable(false);
+		if (!act.isFinishing())
+			pd.show();
 		GPSocialClient.get("news_feed", act.getRequestParams(),
 				new TextHttpResponseHandler() {
 			@Override
 			public void onSuccess(String response) {
+				new Thread() {
+					@Override
+					public void run() {
+						if (pd != null)
+							pd.dismiss();
+					}
+				}.start();
+				
 				System.out.println("pchan: response from server " + response);
 				TwitterData[] feedFromServer = new Gson().fromJson(response, _TYPE);
 				
@@ -75,7 +92,7 @@ public class HomeFragment extends Fragment {
 					standardFeed.add(new FeedData(data));
 				}
 
-				getActivity().runOnUiThread(new Runnable() {
+				act.runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
 						updateFeed();
@@ -86,9 +103,35 @@ public class HomeFragment extends Fragment {
 			@Override
 			public void onFailure(int statusCode, Header[] headers,
 					byte[] errorResponse, Throwable e) {
+				new Thread() {
+					@Override
+					public void run() {
+						if (pd != null)
+							pd.dismiss();
+					}
+				}.start();
+				
 				// called when response HTTP status is "4XX" (eg. 401, 403, 404)
 				System.err.println("pchan: Error on News Feed: " + statusCode + " message:"
 						+ e.getLocalizedMessage());
+
+				act.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						new AlertDialog.Builder(act)
+						.setTitle("Error")
+						.setMessage("An error occurred when loading your news feed." + 
+								" Please check your connection or try again later.")
+						.setPositiveButton(android.R.string.ok,
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int which) {
+									}
+								})
+						.show();
+						
+					}
+				});
 			}
 		});
 	}

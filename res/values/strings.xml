@@ -6,8 +6,8 @@
     <string name="sign_out">Sign out</string>
     
     <string name="profile_pic">Default Profile Pic</string>
-    <string name="default_name">John Smith</string>
-    <string name="default_handle">\@johnsmith</string>
+    <string name="default_name"></string>
+    <string name="default_handle"></string>
     <string name="default_status">N: Some Social Network Status</string>
     <string name="default_location">2km away</string>
     <string name="default_timestamp">15 minutes ago</string>

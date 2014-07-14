@@ -7,7 +7,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.ActionBar;
-import android.app.ProgressDialog;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
 import android.content.Context;
@@ -237,28 +236,5 @@ public class MainActivity extends FragmentActivity implements
 				System.err.println("pchan: error encoding tweet " + e1.getLocalizedMessage());
 			}
 		}
-	}
-	
-	public void showLoading() {
-		runOnUiThread(new Runnable() {
-			
-			@Override
-			public void run() {
-				final ProgressDialog pd = new ProgressDialog(MainActivity.this);
-				pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-				pd.setMessage("Signing in...");
-				pd.setIndeterminate(true);
-				pd.setCancelable(false);
-				if (!isFinishing())
-					pd.show();
-				new Thread() {
-					@Override
-					public void run() {
-						if (pd != null)
-							pd.dismiss();
-					}
-				}.start();
-			}
-		});
 	}
 }

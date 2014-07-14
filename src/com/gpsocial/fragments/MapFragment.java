@@ -134,8 +134,8 @@ public class MapFragment extends Fragment implements LocationListener {
 		    }
 		}
 		
-		TextView ln=(TextView)mMainView.findViewById(R.id.lng);
-		TextView lt=(TextView)mMainView.findViewById(R.id.lat);
+		TextView ln = (TextView) mMainView.findViewById(R.id.lng);
+		TextView lt =(TextView)mMainView.findViewById(R.id.lat);
 		
 		// Getting latitude of the current location
 		double latitude = location.getLatitude();
@@ -161,6 +161,8 @@ public class MapFragment extends Fragment implements LocationListener {
 		
 		ln.setText("long: " + longitude);
         lt.setText("lat: " + latitude);
+        ln.setVisibility(View.GONE);
+        lt.setVisibility(View.GONE);
 
         switchStatus.setText("Successfully detected your location");
         

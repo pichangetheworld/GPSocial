@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -169,12 +170,27 @@ public class ProfileFragment extends Fragment {
 	
 	// get JSON string from server
 	public void getResultFromServer() {
-		MainActivity act = (MainActivity) getActivity();
-		act.showLoading();
+		final MainActivity act = (MainActivity) getActivity();
+		final ProgressDialog pd = new ProgressDialog(act);
+		pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		pd.setMessage("Loading...");
+		pd.setIndeterminate(true);
+		pd.setCancelable(false);
+		if (!act.isFinishing())
+			pd.show();
+		
 		GPSocialClient.get("profile", act.getRequestParams(),
 				new TextHttpResponseHandler() {
 					@Override
 					public void onSuccess(String response) {
+						new Thread() {
+							@Override
+							public void run() {
+								if (pd != null)
+									pd.dismiss();
+							}
+						}.start();
+						
 						System.out.println("pchan: response was successful " + response);
 						ProfileData profileFeed = new Gson().fromJson(response, ProfileData.class);
 						standardFeed.clear();
@@ -194,9 +210,35 @@ public class ProfileFragment extends Fragment {
 					@Override
 					public void onFailure(String responseBody, Throwable error) {
 						super.onFailure(responseBody, error);
+						
+						new Thread() {
+							@Override
+							public void run() {
+								if (pd != null)
+									pd.dismiss();
+							}
+						}.start();
 
 						System.err.println("pchan: Error on Profile message:"
 								+ error.getLocalizedMessage());
+						
+						act.runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								new AlertDialog.Builder(act)
+								.setTitle("Error")
+								.setMessage("An error occurred when loading your profile." + 
+										" Please check your connection or try again later.")
+								.setPositiveButton(android.R.string.ok,
+										new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int which) {
+									}
+								})
+								.show();
+								
+							}
+						});
 					}
 				});
 	}
