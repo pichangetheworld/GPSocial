@@ -260,6 +260,13 @@ public class SigninActivity extends Activity {
 	}
 	
 	private void onSigninFailure() {
+		new Thread() {
+			@Override
+			public void run() {
+				if (mProgressDialog != null)
+					mProgressDialog.dismiss();
+			}
+		}.start();
 		new AlertDialog.Builder(this)
 				.setTitle("Error")
 				.setMessage("An error happened on sign in. Please try again later.")
