@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.ActionBar;
+import android.app.ProgressDialog;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
 import android.content.Context;
@@ -51,6 +52,8 @@ public class MainActivity extends FragmentActivity implements
 	private int mSocialNetworkFlags = 0;
 	private RequestParams mRequestParams = null;
 	private JSONObject mHeader = null;
+	
+	private ProgressDialog mProgressDialog = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -236,5 +239,15 @@ public class MainActivity extends FragmentActivity implements
 				System.err.println("pchan: error encoding tweet " + e1.getLocalizedMessage());
 			}
 		}
+	}
+	
+	public ProgressDialog getProgressDialog() {
+		if (mProgressDialog == null) {
+			mProgressDialog = new ProgressDialog(this);
+			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			mProgressDialog.setIndeterminate(true);
+			mProgressDialog.setCancelable(false);
+		}
+		return mProgressDialog;
 	}
 }
