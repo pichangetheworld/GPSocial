@@ -65,24 +65,28 @@ public class HomeFragment extends Fragment {
 	// get JSON string from server
 	public void getResultFromServer() {
 		final MainActivity act = (MainActivity) getActivity();
-		final ProgressDialog pd = new ProgressDialog(act);
-		pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		pd.setMessage("Loading...");
-		pd.setIndeterminate(true);
-		pd.setCancelable(false);
-		if (!act.isFinishing())
-			pd.show();
+		act.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				ProgressDialog pd = act.getProgressDialog();
+				pd.setMessage("Loading...");
+				if (!act.isFinishing())
+					pd.show();
+			}
+		});
 		GPSocialClient.get("news_feed", act.getRequestParams(),
 				new TextHttpResponseHandler() {
 			@Override
 			public void onSuccess(String response) {
-				new Thread() {
+				act.runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
+						ProgressDialog pd = act.getProgressDialog();
+						System.out.println("pchan; closing dialog " + pd);
 						if (pd != null)
 							pd.dismiss();
 					}
-				}.start();
+				});
 				
 				System.out.println("pchan: response from server " + response);
 				TwitterData[] feedFromServer = new Gson().fromJson(response, _TYPE);
@@ -103,14 +107,6 @@ public class HomeFragment extends Fragment {
 			@Override
 			public void onFailure(int statusCode, Header[] headers,
 					byte[] errorResponse, Throwable e) {
-				new Thread() {
-					@Override
-					public void run() {
-						if (pd != null)
-							pd.dismiss();
-					}
-				}.start();
-				
 				// called when response HTTP status is "4XX" (eg. 401, 403, 404)
 				System.err.println("pchan: Error on News Feed: " + statusCode + " message:"
 						+ e.getLocalizedMessage());
@@ -118,6 +114,10 @@ public class HomeFragment extends Fragment {
 				act.runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
+						ProgressDialog pd = act.getProgressDialog();
+						if (pd != null)
+							pd.dismiss();
+						
 						new AlertDialog.Builder(act)
 						.setTitle("Error")
 						.setMessage("An error occurred when loading your news feed." + 
