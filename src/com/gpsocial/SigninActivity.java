@@ -64,6 +64,8 @@ public class SigninActivity extends Activity {
 	private static final String TW_PREF_KEY_OAUTH_SECRET = "tw_oauth_token_secret";
 	private static final String TW_PREF_KEY_USER_ID = "tw_oauth_user_id";
 	
+	private ProgressDialog mProgressDialog = null;
+	
 	private Session.StatusCallback callback = new Session.StatusCallback() {
 		@Override
 		public void call(final Session session, SessionState state,
@@ -202,20 +204,14 @@ public class SigninActivity extends Activity {
 	}
 
 	public void signInToGPSocial(String endpoint, JSONObject request) {
-		final ProgressDialog pd = new ProgressDialog(this);
-		pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		pd.setMessage("Signing in...");
-		pd.setIndeterminate(true);
-		pd.setCancelable(false);
+		if (mProgressDialog == null)
+			mProgressDialog = new ProgressDialog(this);
+		mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		mProgressDialog.setMessage("Signing in...");
+		mProgressDialog.setIndeterminate(true);
+		mProgressDialog.setCancelable(false);
 		if (!isFinishing())
-			pd.show();
-		new Thread() {
-			@Override
-			public void run() {
-				if (pd != null)
-					pd.dismiss();
-			}
-		}.start();
+			mProgressDialog.show();
 		try {
 			GPSocialClient.post(this, endpoint, 
 					new StringEntity(request.toString()), 
@@ -225,6 +221,14 @@ public class SigninActivity extends Activity {
 							AuthData auth = new Gson().fromJson(response, AuthData.class);
 							
 							if (auth.success) {
+								new Thread() {
+									@Override
+									public void run() {
+										if (mProgressDialog != null)
+											mProgressDialog.dismiss();
+									}
+								}.start();
+								
 								// open the main activity
 								Intent i = new Intent(SigninActivity.this, MainActivity.class);
 								Bundle b = new Bundle();

@@ -78,16 +78,6 @@ public class HomeFragment extends Fragment {
 				new TextHttpResponseHandler() {
 			@Override
 			public void onSuccess(String response) {
-				act.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						ProgressDialog pd = act.getProgressDialog();
-						System.out.println("pchan; closing dialog " + pd);
-						if (pd != null)
-							pd.dismiss();
-					}
-				});
-				
 				System.out.println("pchan: response from server " + response);
 				TwitterData[] feedFromServer = new Gson().fromJson(response, _TYPE);
 				
@@ -99,6 +89,9 @@ public class HomeFragment extends Fragment {
 				act.runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
+						ProgressDialog pd = act.getProgressDialog();
+						if (pd != null)
+							pd.dismiss();
 						updateFeed();
 					}
 				});

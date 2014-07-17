@@ -15,9 +15,8 @@ public class FeedData {
 	public String author;	// user	
 	public String message;	// text
 	public long created_at;	// timestamp
-	public String profile_img_url;	// url to get profile pic (?)
-	// public double longitude;
-	// public double latitude;
+	public double distance;
+	public String profile_img_url;	// url to get profile pic
 	
 	public FeedData() {}
 	
@@ -31,6 +30,7 @@ public class FeedData {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
+		distance = 0;
 		profile_img_url = data.user.profile_image_url;
 	}
 };

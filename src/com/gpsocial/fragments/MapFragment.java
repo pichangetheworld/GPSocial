@@ -1,15 +1,20 @@
 package com.gpsocial.fragments;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Type;
 
+import org.apache.http.Header;
+
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.SparseArray;
 import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,14 +30,21 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.gpsocial.MainActivity;
 import com.gpsocial.R;
+import com.gpsocial.client.GPSocialClient;
+import com.gpsocial.data.MapUserData;
+import com.loopj.android.http.TextHttpResponseHandler;
 
 public class MapFragment extends Fragment implements LocationListener {
+	private static final Type _TYPE = new TypeToken<MapUserData[]>() {}.getType();
+	
     private GoogleMap map;
     private static View mMainView;
     private TextView switchStatus;
-    List<Marker> markerArray;
+    private SparseArray<Marker> userMarkers;
     
     //Test Location
     LatLng UW_RCH = new LatLng(43.470241, -80.540792);
@@ -56,26 +68,26 @@ public class MapFragment extends Fragment implements LocationListener {
 			// map is already there, just return view as it is
 		}
 
-		markerArray = new ArrayList<Marker>();
+		userMarkers = new SparseArray<Marker>();
 
 		final SupportMapFragment frag = (SupportMapFragment)
 				getFragmentManager().findFragmentById(R.id.map);
 		map = frag.getMap();
 		map.setMyLocationEnabled(true);
-		Marker user1 = map.addMarker(new MarkerOptions()
-				.position(UW_RCH)
-				.title("David")
-				.snippet("David is at RCH")
-				.icon(BitmapDescriptorFactory
-						.fromResource(R.drawable.ic_launcher)));
-		markerArray.add(user1);
-		Marker user2 = map.addMarker(new MarkerOptions()
-				.position(UW_Mels_Diner)
-				.title("Amy")
-				.snippet("Amy is at Mel's Diner")
-				.icon(BitmapDescriptorFactory
-						.fromResource(R.drawable.ic_launcher)));
-		markerArray.add(user2);
+//		Marker user1 = map.addMarker(new MarkerOptions()
+//				.position(UW_RCH)
+//				.title("David")
+//				.snippet("David is at RCH")
+//				.icon(BitmapDescriptorFactory
+//						.fromResource(R.drawable.ic_launcher)));
+//		markerArray.add(user1);
+//		Marker user2 = map.addMarker(new MarkerOptions()
+//				.position(UW_Mels_Diner)
+//				.title("Amy")
+//				.snippet("Amy is at Mel's Diner")
+//				.icon(BitmapDescriptorFactory
+//						.fromResource(R.drawable.ic_launcher)));
+//		markerArray.add(user2);
 		LocationManager locManager = (LocationManager) getActivity()
 				.getSystemService(Context.LOCATION_SERVICE);
 		// Criteria criteria = new Criteria();
@@ -120,6 +132,9 @@ public class MapFragment extends Fragment implements LocationListener {
 		 * locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
 		 * 20000, 0, this); }
 		 */
+		
+		getResultFromServer();
+		
 		return mMainView;
 	}
 
@@ -128,14 +143,12 @@ public class MapFragment extends Fragment implements LocationListener {
 				
 		switchStatus.setText("... wait for updates");
 		
-		for (Marker marker : markerArray) {
-		    if (marker.getTitle().equals("MyLocation")){
-		    	marker.remove();
-		    }
-		}
+		Marker m = userMarkers.get(((MainActivity)getActivity()).getId());
+		if (m != null)
+			m.remove();
 		
 		TextView ln = (TextView) mMainView.findViewById(R.id.lng);
-		TextView lt =(TextView)mMainView.findViewById(R.id.lat);
+		TextView lt = (TextView) mMainView.findViewById(R.id.lat);
 		
 		// Getting latitude of the current location
 		double latitude = location.getLatitude();
@@ -152,7 +165,8 @@ public class MapFragment extends Fragment implements LocationListener {
 						        .snippet("I am here")
 						        .icon(BitmapDescriptorFactory
 						        		.fromResource(R.drawable.cur_position)));
-		markerArray.add(myLoc);
+		userMarkers.put(((MainActivity)getActivity()).getId(), myLoc);
+		
 		// Showing the current location in Google Map
 		map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 		
@@ -213,6 +227,83 @@ public class MapFragment extends Fragment implements LocationListener {
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		// TODO Auto-generated method stub		
-	}	
+	}
+	
+	// get JSON string from server
+	public void getResultFromServer() {
+		final MainActivity act = (MainActivity) getActivity();
+		act.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				ProgressDialog pd = act.getProgressDialog();
+				pd.setMessage("Loading...");
+				if (!act.isFinishing())
+					pd.show();
+			}
+		});
+		GPSocialClient.get("users_near_me", act.getRequestParams(),
+				new TextHttpResponseHandler() {
+					@Override
+					public void onSuccess(String response) {
+						System.out.println("pchan: response from server " + response);
+						MapUserData[] feedFromServer = new Gson().fromJson(response, _TYPE);
+						for (MapUserData data : feedFromServer) {
+							Marker m = userMarkers.get(data.id);
+							if (m == null) {
+								Marker user1 = map.addMarker(new MarkerOptions()
+										.position(new LatLng(data.lat, data.lng))
+										.title(data.user_name)
+										.icon(BitmapDescriptorFactory
+												.fromResource(R.drawable.ic_launcher)));
+								userMarkers.put(data.id, user1);
+							} else {
+								m.setPosition(new LatLng(data.lat, data.lng));
+							}
+						}
+
+						act.runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								ProgressDialog pd = act.getProgressDialog();
+								if (pd != null)
+									pd.dismiss();
+							}
+						});
+					}
+
+					@Override
+					public void onFailure(int statusCode, Header[] headers,
+							byte[] errorResponse, Throwable e) {
+						// called when response HTTP status is "4XX" (eg. 401,
+						// 403, 404)
+						System.err.println("pchan: Error on Maps: "
+								+ statusCode + " message:"
+								+ e.getLocalizedMessage());
+
+						act.runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								ProgressDialog pd = act.getProgressDialog();
+								if (pd != null)
+									pd.dismiss();
+
+								new AlertDialog.Builder(act)
+										.setTitle("Error")
+										.setMessage(
+												"An error occurred when finding your friends."
+														+ " Please check your connection or try again later.")
+										.setPositiveButton(
+												android.R.string.ok,
+												new DialogInterface.OnClickListener() {
+													public void onClick(
+															DialogInterface dialog,
+															int which) {
+													}
+												}).show();
+
+							}
+						});
+					}
+				});
+	}
 }

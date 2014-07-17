@@ -164,6 +164,10 @@ public class MainActivity extends FragmentActivity implements
 		return mRequestParams;
 	}
 	
+	public int getId() {
+		return Integer.parseInt(mUserId);
+	}
+	
 	public void setLocation(double lng, double lat) {
 		mLong = lng; mLat = lat;
 	}

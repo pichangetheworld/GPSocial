@@ -38,6 +38,7 @@ public class FeedListAdapter extends ArrayAdapter<FeedData> {
         TextView author;
         TextView message;
         TextView createdAt;
+        TextView distance;
     }
     
 	@Override
@@ -53,10 +54,11 @@ public class FeedListAdapter extends ArrayAdapter<FeedData> {
             row = inflater.inflate(layoutResourceId, parent, false);
            
             holder = new FeedObjectHolder();
-            holder.profilePicture = (ImageView)row.findViewById(R.id.profile_picture);
-            holder.author = (TextView)row.findViewById(R.id.author);
-            holder.message = (TextView)row.findViewById(R.id.message);
-            holder.createdAt = (TextView)row.findViewById(R.id.createdAt);
+            holder.profilePicture = (ImageView) row.findViewById(R.id.profile_picture);
+            holder.author = (TextView) row.findViewById(R.id.author);
+            holder.message = (TextView) row.findViewById(R.id.message);
+            holder.createdAt = (TextView) row.findViewById(R.id.createdAt);
+            holder.distance = (TextView) row.findViewById(R.id.distance);
 
             row.setTag(holder);
         }
@@ -75,6 +77,9 @@ public class FeedListAdapter extends ArrayAdapter<FeedData> {
         			.format(post.created_at));
         
         ImageLoader.getInstance().displayImage(post.profile_img_url, holder.profilePicture);
+        if (post.distance == 0) {
+        	holder.distance.setVisibility(View.GONE);
+        }
 
 		notifyDataSetChanged();
         
