@@ -41,7 +41,7 @@ import com.loopj.android.http.TextHttpResponseHandler;
 public class MapFragment extends Fragment implements LocationListener {
 	private static final Type _TYPE = new TypeToken<MapUserData[]>() {}.getType();
 	
-    private GoogleMap map;
+    private GoogleMap mMap;
     private static View mMainView;
     private TextView switchStatus;
     private SparseArray<Marker> userMarkers;
@@ -72,8 +72,8 @@ public class MapFragment extends Fragment implements LocationListener {
 
 		final SupportMapFragment frag = (SupportMapFragment)
 				getFragmentManager().findFragmentById(R.id.map);
-		map = frag.getMap();
-		map.setMyLocationEnabled(true);
+		mMap = frag.getMap();
+		mMap.setMyLocationEnabled(true);
 //		Marker user1 = map.addMarker(new MarkerOptions()
 //				.position(UW_RCH)
 //				.title("David")
@@ -159,7 +159,7 @@ public class MapFragment extends Fragment implements LocationListener {
 		// Creating a LatLng object for the current location
 		LatLng latLng = new LatLng(latitude, longitude);
 		
-		Marker myLoc = map.addMarker(new MarkerOptions()
+		Marker myLoc = mMap.addMarker(new MarkerOptions()
 						        .position(latLng)
 						        .title("MyLocation")
 						        .snippet("I am here")
@@ -168,10 +168,10 @@ public class MapFragment extends Fragment implements LocationListener {
 		userMarkers.put(((MainActivity)getActivity()).getId(), myLoc);
 		
 		// Showing the current location in Google Map
-		map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+		mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 		
 		// Zoom in the Google Map
-		map.animateCamera(CameraUpdateFactory.zoomTo(14));	
+		mMap.animateCamera(CameraUpdateFactory.zoomTo(14));	
 		
 		ln.setText("long: " + longitude);
         lt.setText("lat: " + latitude);
@@ -247,17 +247,21 @@ public class MapFragment extends Fragment implements LocationListener {
 					public void onSuccess(String response) {
 						System.out.println("pchan: response from server " + response);
 						MapUserData[] feedFromServer = new Gson().fromJson(response, _TYPE);
+						System.out.println("pchan: length of response is " + feedFromServer.length);
 						for (MapUserData data : feedFromServer) {
+							System.out.println("pchan: now considering : " + data.user_name);
 							Marker m = userMarkers.get(data.id);
 							if (m == null) {
-								Marker user1 = map.addMarker(new MarkerOptions()
-										.position(new LatLng(data.lat, data.lng))
+								System.out.println("pchan: user doesn't exist yet id(" + data.id + ")");
+								System.out.println("pchan: drawing user at (" + data.lat + "," + data.lng + ")");
+								Marker user1 = mMap.addMarker(new MarkerOptions()
+										.position(new LatLng(data.lng, data.lat)) // XXX
 										.title(data.user_name)
 										.icon(BitmapDescriptorFactory
 												.fromResource(R.drawable.ic_launcher)));
 								userMarkers.put(data.id, user1);
 							} else {
-								m.setPosition(new LatLng(data.lat, data.lng));
+								m.setPosition(new LatLng(data.lat, data.lng)); // XXX
 							}
 						}
 

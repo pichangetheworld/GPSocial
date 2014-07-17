@@ -7,9 +7,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.ActionBar;
-import android.app.ProgressDialog;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -22,7 +22,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.PopupMenu;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.Toast;
 
 import com.gpsocial.adapter.TabsPagerAdapter;
@@ -52,6 +54,9 @@ public class MainActivity extends FragmentActivity implements
 	private int mSocialNetworkFlags = 0;
 	private RequestParams mRequestParams = null;
 	private JSONObject mHeader = null;
+	
+	private ImageButton mPostFeed = null;
+	private EditText mPostMessage = null;
 	
 	private ProgressDialog mProgressDialog = null;
 	
@@ -83,6 +88,9 @@ public class MainActivity extends FragmentActivity implements
 		viewPager.setAdapter(mAdapter);
 		actionBar.setHomeButtonEnabled(false);
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+		
+		mPostFeed = (ImageButton) findViewById(R.id.post_message_source);
+		mPostMessage = (EditText) findViewById(R.id.post_message);
 		
 		for (String tab_name : tabs){
 			actionBar.addTab(actionBar.newTab().setText(tab_name)
@@ -194,6 +202,21 @@ public class MainActivity extends FragmentActivity implements
 	    PopupMenu popup = new PopupMenu(this, v);
 	    MenuInflater inflater = popup.getMenuInflater();
 	    inflater.inflate(R.menu.post_status, popup.getMenu());
+	    popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+            	mPostFeed.setBackground(item.getIcon());
+                if (item.getTitle() == getString(R.string.post_facebook)) {
+                	Toast.makeText(getBaseContext(), "You selected the action : FACEBOOK", Toast.LENGTH_SHORT).show();
+            		mPostMessage.setHint(R.string.post_status_prompt);
+                } else if (item.getTitle() == getString(R.string.post_twitter)) {
+            		Toast.makeText(getBaseContext(), "You selected the action : TWITTER", Toast.LENGTH_SHORT).show();
+            		mPostMessage.setHint(R.string.post_tweet_prompt);
+                } else
+                	Toast.makeText(getBaseContext(), "You did NEITHER: you selected the action : " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
 	    popup.show();
 	}
 	
