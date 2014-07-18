@@ -37,7 +37,6 @@ import com.gpsocial.client.GPSocialClient;
 import com.gpsocial.data.AuthData;
 import com.gpsocial.data.FeedData;
 import com.gpsocial.data.ProfileData;
-import com.gpsocial.data.TwitterData;
 import com.loopj.android.http.TextHttpResponseHandler;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
