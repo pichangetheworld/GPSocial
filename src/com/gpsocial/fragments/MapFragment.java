@@ -8,7 +8,6 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -18,10 +17,12 @@ import android.util.SparseArray;
 import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -97,13 +98,12 @@ public class MapFragment extends Fragment implements LocationListener {
 		// String provider = locManager.getBestProvider(criteria, false);
 
 		switchStatus = (TextView) mMainView.findViewById(R.id.switchStatus);
-		Button btnGPSConfig = (Button) mMainView.findViewById(R.id.gpsButton);
-		btnGPSConfig.setOnClickListener(new OnClickListener() {
+		ToggleButton btnGPSConfig = (ToggleButton) mMainView.findViewById(R.id.share_my_location);
+		btnGPSConfig.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
 			@Override
-			public void onClick(View arg0) {
-				Intent viewIntent = new Intent(
-						android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-				startActivity(viewIntent);
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				Toast.makeText(getActivity(), "Toggled privacy settings!", Toast.LENGTH_SHORT).show();
 			}
 		});
 
@@ -144,7 +144,7 @@ public class MapFragment extends Fragment implements LocationListener {
 	@Override
 	public void onLocationChanged(Location location) {
 				
-		switchStatus.setText("... wait for updates");
+//		switchStatus.setText("... wait for updates");
 		
 		Marker m = userMarkers.get(mUserId);
 		if (m != null)
@@ -181,7 +181,7 @@ public class MapFragment extends Fragment implements LocationListener {
         ln.setVisibility(View.GONE);
         lt.setVisibility(View.GONE);
 
-        switchStatus.setText("Successfully detected your location");
+//        switchStatus.setText("Successfully detected your location");
         
         if (getActivity() != null && !getActivity().isFinishing())
         	((MainActivity) getActivity()).setLocation(longitude, latitude);
@@ -195,9 +195,9 @@ public class MapFragment extends Fragment implements LocationListener {
 		boolean isNetworkEnabled = locManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 		
 		if(!isGPSEnabled && !isNetworkEnabled){
-			if(!ln.getText().toString().equals("")){
+			if (!ln.getText().toString().equals("")) {
 				switchStatus.setText("Location Service OFF. Last Saved Location Shown");
-			}else{
+			} else {
 				switchStatus.setText("Location Service OFF. Use the button to turn on");
 			}
 			

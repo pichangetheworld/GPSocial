@@ -225,7 +225,7 @@ public class MainActivity extends FragmentActivity implements
                 } else if (item.getTitle() == getString(R.string.post_twitter)) {
             		mPostMessage.setHint(R.string.post_tweet_prompt);
                 }
-            	Toast.makeText(getBaseContext(), "Selected the action : " + item.getTitle(), Toast.LENGTH_SHORT).show();
+//            	Toast.makeText(getBaseContext(), "Selected the action : " + item.getTitle(), Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
