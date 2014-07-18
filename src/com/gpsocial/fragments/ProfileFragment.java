@@ -176,7 +176,7 @@ public class ProfileFragment extends Fragment {
 		pd.setMessage("Loading...");
 		pd.setIndeterminate(true);
 		pd.setCancelable(false);
-		if (!act.isFinishing())
+		if (!act.isFinishing() && !pd.isShowing())
 			pd.show();
 		
 		GPSocialClient.get("profile", act.getRequestParams(),
@@ -202,7 +202,7 @@ public class ProfileFragment extends Fragment {
 						handle.setText(profileFeed.twitter_handle);
 
 						ImageLoader.getInstance().displayImage(
-								profileFeed.profile_img_url_tw, avatar);
+								profileFeed.profile_img_url, avatar);
 
 						updateFeed();
 					}

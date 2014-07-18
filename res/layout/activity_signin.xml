@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:contentDescription="@string/default_map"
-        android:src="@drawable/gpsocial_logo" />
+        android:src="@drawable/gpsocial_splash" />
 
     <com.facebook.widget.LoginButton
         android:id="@+id/facebookSigninButton"

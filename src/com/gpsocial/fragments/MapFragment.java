@@ -45,6 +45,7 @@ public class MapFragment extends Fragment implements LocationListener {
     private static View mMainView;
     private TextView switchStatus;
     private SparseArray<Marker> userMarkers;
+    private int mUserId;
     
     //Test Location
     LatLng UW_RCH = new LatLng(43.470241, -80.540792);
@@ -54,6 +55,8 @@ public class MapFragment extends Fragment implements LocationListener {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
+		
+		mUserId = ((MainActivity)getActivity()).getId();
 
 		if (mMainView != null) {
 			ViewGroup parent = (ViewGroup) mMainView.getParent();
@@ -143,7 +146,7 @@ public class MapFragment extends Fragment implements LocationListener {
 				
 		switchStatus.setText("... wait for updates");
 		
-		Marker m = userMarkers.get(((MainActivity)getActivity()).getId());
+		Marker m = userMarkers.get(mUserId);
 		if (m != null)
 			m.remove();
 		
@@ -165,7 +168,7 @@ public class MapFragment extends Fragment implements LocationListener {
 						        .snippet("I am here")
 						        .icon(BitmapDescriptorFactory
 						        		.fromResource(R.drawable.cur_position)));
-		userMarkers.put(((MainActivity)getActivity()).getId(), myLoc);
+		userMarkers.put(mUserId, myLoc);
 		
 		// Showing the current location in Google Map
 		mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
@@ -236,8 +239,7 @@ public class MapFragment extends Fragment implements LocationListener {
 			@Override
 			public void run() {
 				ProgressDialog pd = act.getProgressDialog();
-				pd.setMessage("Loading...");
-				if (!act.isFinishing())
+				if (!act.isFinishing() && !pd.isShowing())
 					pd.show();
 			}
 		});

@@ -11,9 +11,12 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
 
 import com.google.gson.Gson;
@@ -31,15 +34,9 @@ public class HomeFragment extends Fragment {
 
 	private FeedListAdapter adapter;
 	private ListView listview;
+	private SwipeRefreshLayout swipeView;
 
 	private List<FeedData> standardFeed;
-
-	Thread timer = new Thread() {
-		public void run() {
-			// do stuff in a separate thread
-			getResultFromServer();
-		}
-	};
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -49,10 +46,33 @@ public class HomeFragment extends Fragment {
 		View rootView = inflater.inflate(R.layout.fragment_home, container, false);
 		adapter = new FeedListAdapter(getActivity(), R.layout.list_feed, standardFeed);
 
+		swipeView = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe);
+	    swipeView.setEnabled(false);
+	    swipeView.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+	        @Override
+	        public void onRefresh() {
+	        	swipeView.setRefreshing(true);
+	            getResultFromServer();
+	        }
+	    });
+		
 		listview = (ListView) rootView.findViewById(R.id.listview);
 		listview.setAdapter(adapter);
+		listview.setOnScrollListener(new OnScrollListener() {
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState) {}
+			
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem,
+					int visibleItemCount, int totalItemCount) {
+                if (firstVisibleItem == 0)
+                    swipeView.setEnabled(true);
+                else
+                    swipeView.setEnabled(false);
+			}
+		});
 
-		timer.start();
+		getResultFromServer();
 
 		return rootView;
 	}
@@ -69,8 +89,7 @@ public class HomeFragment extends Fragment {
 			@Override
 			public void run() {
 				ProgressDialog pd = act.getProgressDialog();
-				pd.setMessage("Loading...");
-				if (!act.isFinishing())
+				if (!act.isFinishing() && !pd.isShowing())
 					pd.show();
 			}
 		});
@@ -92,6 +111,7 @@ public class HomeFragment extends Fragment {
 						ProgressDialog pd = act.getProgressDialog();
 						if (pd != null)
 							pd.dismiss();
+						swipeView.setRefreshing(false);
 						updateFeed();
 					}
 				});
@@ -110,6 +130,7 @@ public class HomeFragment extends Fragment {
 						ProgressDialog pd = act.getProgressDialog();
 						if (pd != null)
 							pd.dismiss();
+						swipeView.setRefreshing(false);
 						
 						new AlertDialog.Builder(act)
 						.setTitle("Error")

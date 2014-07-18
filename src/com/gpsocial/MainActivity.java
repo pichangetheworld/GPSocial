@@ -8,9 +8,11 @@ import org.json.JSONObject;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -91,6 +93,12 @@ public class MainActivity extends FragmentActivity implements
 		
 		mPostFeed = (ImageButton) findViewById(R.id.post_message_source);
 		mPostMessage = (EditText) findViewById(R.id.post_message);
+
+		// If Twitter is not linked show FB resources
+	    if (isTwitterLinked() == 0) {
+        	mPostFeed.setBackground(getResources().getDrawable(R.drawable.facebook_logo_blue));
+        	mPostMessage.setHint(R.string.post_status_prompt);
+	    }
 		
 		for (String tab_name : tabs){
 			actionBar.addTab(actionBar.newTab().setText(tab_name)
@@ -202,18 +210,22 @@ public class MainActivity extends FragmentActivity implements
 	    PopupMenu popup = new PopupMenu(this, v);
 	    MenuInflater inflater = popup.getMenuInflater();
 	    inflater.inflate(R.menu.post_status, popup.getMenu());
+	    Menu popupMenu = popup.getMenu();
+	    if (isTwitterLinked() == 0) {
+	        popupMenu.findItem(R.id.twitter).setVisible(false);
+	    }
+	    if (isFacebookLinked() == 0)
+	    	popupMenu.findItem(R.id.facebook).setVisible(false);
 	    popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
             	mPostFeed.setBackground(item.getIcon());
                 if (item.getTitle() == getString(R.string.post_facebook)) {
-                	Toast.makeText(getBaseContext(), "You selected the action : FACEBOOK", Toast.LENGTH_SHORT).show();
             		mPostMessage.setHint(R.string.post_status_prompt);
                 } else if (item.getTitle() == getString(R.string.post_twitter)) {
-            		Toast.makeText(getBaseContext(), "You selected the action : TWITTER", Toast.LENGTH_SHORT).show();
             		mPostMessage.setHint(R.string.post_tweet_prompt);
-                } else
-                	Toast.makeText(getBaseContext(), "You did NEITHER: you selected the action : " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                }
+            	Toast.makeText(getBaseContext(), "Selected the action : " + item.getTitle(), Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
@@ -225,25 +237,31 @@ public class MainActivity extends FragmentActivity implements
 		String message = e.getText().toString();
 		
 		if (!message.isEmpty()) {
-			System.out.println("pchan: posting a tweet " + message);
-	        JSONObject p = new JSONObject();
+			System.out.println("pchan: posting a message " + message);
+	        JSONObject p = getHeader();
 	        try {
-	        	p.put("id", mUserId);
 				p.put("message", message);
 				p.put("source", FeedData.Source.TWITTER.ordinal());
-				if (mLat > -100) {
-					p.put("lng", Double.toString(mLong));
-					p.put("lat", Double.toString(mLat));
-				}
 			} catch (JSONException e2) {
 				e2.printStackTrace();
 			}
+	        ProgressDialog pd = getProgressDialog();
+	        pd.setMessage("Posting...");
+	        pd.show();
 			try {
 				GPSocialClient.post(this, "post_message",
 						new StringEntity(p.toString()),
 						new TextHttpResponseHandler() {
 							@Override
 							public void onSuccess(String response) {
+								new Thread() {
+									@Override
+									public void run() {
+										if (mProgressDialog != null)
+											mProgressDialog.dismiss();
+									}
+								}.start();
+								
 								e.setText("");
 								e.clearFocus();
 								InputMethodManager imm = (InputMethodManager)getSystemService(
@@ -259,6 +277,7 @@ public class MainActivity extends FragmentActivity implements
 								super.onFailure(responseBody, error);
 								System.err.println("pchan: Error while posting a tweet... " + 
 										error.getLocalizedMessage());
+								onPostMessageFailure();
 							}
 						});
 			} catch (UnsupportedEncodingException e1) {
@@ -268,13 +287,33 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 	
+	private void onPostMessageFailure() {
+		new Thread() {
+			@Override
+			public void run() {
+				if (mProgressDialog != null)
+					mProgressDialog.dismiss();
+			}
+		}.start();
+		new AlertDialog.Builder(this)
+				.setTitle("Error")
+				.setMessage("An error happened when trying to post your message. Please try again later.")
+				.setPositiveButton(android.R.string.ok,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int which) {
+							}
+						})
+				.show();
+	}
+	
 	public ProgressDialog getProgressDialog() {
 		if (mProgressDialog == null) {
 			mProgressDialog = new ProgressDialog(this);
 			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 			mProgressDialog.setIndeterminate(true);
-			mProgressDialog.setCancelable(false);
 		}
+		mProgressDialog.setMessage("Loading...");
 		return mProgressDialog;
 	}
 }
