@@ -249,16 +249,16 @@ public class MapFragment extends Fragment implements LocationListener {
 						for (MapUserData data : feedFromServer) {
 							Marker m = userMarkers.get(data.id);
 							if (m == null) {
-								System.out.println("pchan: user doesn't exist yet id(" + data.id + ")");
-								System.out.println("pchan: drawing user at (" + data.lat + "," + data.lng + ")");
+//								System.out.println("pchan: user doesn't exist yet id(" + data.id + ")");
+//								System.out.println("pchan: drawing user at (" + data.lat + "," + data.lng + ")");
 								Marker user1 = mMap.addMarker(new MarkerOptions()
-										.position(new LatLng(data.lng, data.lat)) // XXX
+										.position(new LatLng(data.lat, data.lng))
 										.title(data.user_name)
 										.icon(BitmapDescriptorFactory
 												.fromResource(R.drawable.ic_launcher)));
 								userMarkers.put(data.id, user1);
 							} else {
-								m.setPosition(new LatLng(data.lat, data.lng)); // XXX
+								m.setPosition(new LatLng(data.lat, data.lng));
 							}
 						}
 

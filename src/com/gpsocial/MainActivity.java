@@ -68,6 +68,7 @@ public class MainActivity extends FragmentActivity implements
 		setContentView(R.layout.activity_main);
 		
 		mUserId = getIntent().getStringExtra("userId");
+		System.out.println("pchan user id is " + mUserId);
 		mSocialNetworkFlags = getIntent().getIntExtra("socialNetworkFlags", 0);
 		
 		DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()

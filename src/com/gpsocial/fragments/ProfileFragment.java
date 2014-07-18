@@ -74,6 +74,7 @@ public class ProfileFragment extends Fragment {
 					}
 
 					private void signInToGPSocialFacebook(JSONObject request) {
+						System.out.println("pchan: COPY ME " + request.toString());
 						try {
 							GPSocialClient.post(getActivity(), "authenticate_facebook",
 									new StringEntity(request.toString()),
@@ -86,6 +87,7 @@ public class ProfileFragment extends Fragment {
 											
 											if (auth.success) {
 												((MainActivity) getActivity()).updateFlags(auth.connectedFlag);
+												getResultFromServer();
 											} else {
 												// show error
 												onSigninFailure();
@@ -204,11 +206,11 @@ public class ProfileFragment extends Fragment {
 							}
 						}.start();
 						
-//						System.out.println("pchan: response was successful " + response);
+						System.out.println("pchan: response was successful " + response);
 						ProfileData profileFeed = new Gson().fromJson(response, ProfileData.class);
 						standardFeed.clear();
-						for (TwitterData data : profileFeed.feed) {
-							standardFeed.add(new FeedData(data));
+						for (FeedData data : profileFeed.feed) {
+							standardFeed.add(data);
 						}
 
 						username.setText(profileFeed.name);

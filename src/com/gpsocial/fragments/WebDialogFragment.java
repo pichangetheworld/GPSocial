@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -45,6 +46,8 @@ public class WebDialogFragment extends DialogFragment {
 		wv = (WebView) v.findViewById(R.id.webview);
 		wv.setWebViewClient(new TwitterWebViewClient(this));
 		wv.loadUrl(mUrl);
+		
+		getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
 		return v;
 	}

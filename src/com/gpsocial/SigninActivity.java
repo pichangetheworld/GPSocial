@@ -65,12 +65,15 @@ public class SigninActivity extends Activity {
 	private static final String TW_PREF_KEY_USER_ID = "tw_oauth_user_id";
 	
 	private ProgressDialog mProgressDialog = null;
+	private boolean isSigningIn = false;
 	
 	private Session.StatusCallback callback = new Session.StatusCallback() {
 		@Override
 		public void call(final Session session, SessionState state,
 				Exception exception) {
-			if (state.isOpened()) {
+			if (state.isOpened() && !isSigningIn) {
+				isSigningIn = true;
+				
 				// make request to the /me API
 				Request.newMeRequest(session, new Request.GraphUserCallback() {
 					// callback after Graph API response with user object
@@ -118,7 +121,8 @@ public class SigninActivity extends Activity {
 
 		// If the user's Twitter sign in was already saved
 		long mTwitterUserId = mSharedPreferences.getLong(TW_PREF_KEY_USER_ID, -1);
-		if (mTwitterUserId >= 0) {
+		if (mTwitterUserId >= 0 && !isSigningIn) {
+			isSigningIn = true;
 			String mTwitterToken = mSharedPreferences.getString(TW_PREF_KEY_OAUTH_TOKEN, "");
 			String mTwitterSecret = mSharedPreferences.getString(TW_PREF_KEY_OAUTH_SECRET, "");
 	        JSONObject request = new JSONObject();
@@ -135,6 +139,14 @@ public class SigninActivity extends Activity {
 	
 	// Sign in with Twitter
 	public void twitterSignin(View view) {
+		if (mProgressDialog == null)
+			mProgressDialog = new ProgressDialog(this);
+		mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		mProgressDialog.setMessage("Loading...");
+		mProgressDialog.setIndeterminate(true);
+		mProgressDialog.setCancelable(false);
+		if (!isFinishing())
+			mProgressDialog.show();
 		new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected Void doInBackground(Void... params) {
@@ -228,6 +240,7 @@ public class SigninActivity extends Activity {
 											mProgressDialog.dismiss();
 									}
 								}.start();
+								isSigningIn = false;
 								
 								// open the main activity
 								Intent i = new Intent(SigninActivity.this, MainActivity.class);
@@ -260,6 +273,7 @@ public class SigninActivity extends Activity {
 	}
 	
 	private void onSigninFailure() {
+		isSigningIn = false;
 		new Thread() {
 			@Override
 			public void run() {
@@ -267,16 +281,17 @@ public class SigninActivity extends Activity {
 					mProgressDialog.dismiss();
 			}
 		}.start();
-		new AlertDialog.Builder(this)
-				.setTitle("Error")
-				.setMessage("An error happened on sign in. Please try again later.")
-				.setPositiveButton(android.R.string.ok,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-							}
-						})
-				.show();
+		if (!isFinishing())
+			new AlertDialog.Builder(this)
+					.setTitle("Error")
+					.setMessage("An error happened on sign in. Please try again later.")
+					.setPositiveButton(android.R.string.ok,
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int which) {
+								}
+							})
+					.show();
 	}
 
 	@Override
@@ -312,6 +327,7 @@ public class SigninActivity extends Activity {
 	// For Twitter Signin
 	// Step 1: Get request token
 	private void getTwitterRequestToken() {
+		mProgressDialog.dismiss();
 		ConfigurationBuilder builder = new ConfigurationBuilder();
 		builder.setOAuthConsumerKey(TWITTER_CONSUMER_KEY);
 		builder.setOAuthConsumerSecret(TWITTER_CONSUMER_SECRET);

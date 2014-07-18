@@ -26,11 +26,10 @@ import com.gpsocial.R;
 import com.gpsocial.adapter.FeedListAdapter;
 import com.gpsocial.client.GPSocialClient;
 import com.gpsocial.data.FeedData;
-import com.gpsocial.data.TwitterData;
 import com.loopj.android.http.TextHttpResponseHandler;
 
 public class HomeFragment extends Fragment {
-	private static final Type _TYPE = new TypeToken<TwitterData[]>() {}.getType();
+	private static final Type _TYPE = new TypeToken<FeedData[]>() {}.getType();
 
 	private FeedListAdapter adapter;
 	private ListView listview;
@@ -98,11 +97,11 @@ public class HomeFragment extends Fragment {
 			@Override
 			public void onSuccess(String response) {
 //				System.out.println("pchan: response from server " + response);
-				TwitterData[] feedFromServer = new Gson().fromJson(response, _TYPE);
+				FeedData[] feedFromServer = new Gson().fromJson(response, _TYPE);
 				
 				standardFeed.clear();
-				for (TwitterData data : feedFromServer) {
-					standardFeed.add(new FeedData(data));
+				for (FeedData data : feedFromServer) {
+					standardFeed.add(data);
 				}
 
 				act.runOnUiThread(new Runnable() {
