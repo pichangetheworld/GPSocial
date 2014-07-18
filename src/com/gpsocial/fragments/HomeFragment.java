@@ -97,7 +97,7 @@ public class HomeFragment extends Fragment {
 				new TextHttpResponseHandler() {
 			@Override
 			public void onSuccess(String response) {
-				System.out.println("pchan: response from server " + response);
+//				System.out.println("pchan: response from server " + response);
 				TwitterData[] feedFromServer = new Gson().fromJson(response, _TYPE);
 				
 				standardFeed.clear();

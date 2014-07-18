@@ -98,9 +98,9 @@ public class MapFragment extends Fragment implements LocationListener {
 		// String provider = locManager.getBestProvider(criteria, false);
 
 		switchStatus = (TextView) mMainView.findViewById(R.id.switchStatus);
-		ToggleButton btnGPSConfig = (ToggleButton) mMainView.findViewById(R.id.share_my_location);
-		btnGPSConfig.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			
+		ToggleButton shareLocation = (ToggleButton) mMainView.findViewById(R.id.share_my_location);
+		shareLocation.setChecked(true);
+		shareLocation.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				Toast.makeText(getActivity(), "Toggled privacy settings!", Toast.LENGTH_SHORT).show();
@@ -144,8 +144,6 @@ public class MapFragment extends Fragment implements LocationListener {
 	@Override
 	public void onLocationChanged(Location location) {
 				
-//		switchStatus.setText("... wait for updates");
-		
 		Marker m = userMarkers.get(mUserId);
 		if (m != null)
 			m.remove();
@@ -247,11 +245,8 @@ public class MapFragment extends Fragment implements LocationListener {
 				new TextHttpResponseHandler() {
 					@Override
 					public void onSuccess(String response) {
-						System.out.println("pchan: response from server " + response);
 						MapUserData[] feedFromServer = new Gson().fromJson(response, _TYPE);
-						System.out.println("pchan: length of response is " + feedFromServer.length);
 						for (MapUserData data : feedFromServer) {
-							System.out.println("pchan: now considering : " + data.user_name);
 							Marker m = userMarkers.get(data.id);
 							if (m == null) {
 								System.out.println("pchan: user doesn't exist yet id(" + data.id + ")");

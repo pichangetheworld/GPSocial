@@ -82,6 +82,8 @@ public class ProfileFragment extends Fragment {
 										public void onSuccess(String response) {
 											AuthData auth = new Gson().fromJson(response, AuthData.class);
 											
+											System.out.println("pchan: linking success! response is " + response);
+											
 											if (auth.success) {
 												((MainActivity) getActivity()).updateFlags(auth.connectedFlag);
 											} else {
@@ -130,8 +132,11 @@ public class ProfileFragment extends Fragment {
 		View rootView = inflater.inflate(R.layout.fragment_profile, container, false);
 
 		if (((MainActivity) getActivity()).isFacebookLinked() == 0) {
+			System.out.println("pchan: facebook is not yet linked");
 			uiHelper = new UiLifecycleHelper(getActivity(), callback);
 			uiHelper.onCreate(savedInstanceState);
+		} else {
+			System.out.println("pchan: facebook is already linked??");
 		}
 		
 		standardFeed = new ArrayList<FeedData>();
@@ -143,15 +148,23 @@ public class ProfileFragment extends Fragment {
 		avatar = (ImageView) rootView.findViewById(R.id.avatar_pic);
 
 		// get flags
+		final TextView linkPrompt = (TextView) rootView.findViewById(R.id.link_account);
+		
 		// link Facebook
 		// link Twitter
 		final LoginButton linkFacebook = (LoginButton) rootView.findViewById(R.id.link_facebook);
 		linkFacebook.setText("");
 		linkFacebook.setBackgroundResource(R.drawable.link_facebook_selector);
-		if (((MainActivity) getActivity()).isFacebookLinked() != 0) {
+		linkFacebook.setFragment(this);
+		int fbLinked = ((MainActivity) getActivity()).isFacebookLinked(),
+			twLinked = ((MainActivity) getActivity()).isTwitterLinked();
+		if (fbLinked != 0 && twLinked != 0) {
+			linkPrompt.setVisibility(View.GONE);
+		}
+		if (fbLinked != 0) {
 			linkFacebook.setVisibility(View.GONE);
 		}
-		if (((MainActivity) getActivity()).isTwitterLinked() != 0) {
+		if (twLinked != 0) {
 			((Button) rootView.findViewById(R.id.link_twitter)).setVisibility(View.GONE);
 		}
 		
@@ -191,7 +204,7 @@ public class ProfileFragment extends Fragment {
 							}
 						}.start();
 						
-						System.out.println("pchan: response was successful " + response);
+//						System.out.println("pchan: response was successful " + response);
 						ProfileData profileFeed = new Gson().fromJson(response, ProfileData.class);
 						standardFeed.clear();
 						for (TwitterData data : profileFeed.feed) {
